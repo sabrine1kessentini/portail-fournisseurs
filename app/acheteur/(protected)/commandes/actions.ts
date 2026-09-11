@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireBuyer } from "@/lib/auth/guards";
 import { createOrderSchema } from "@/lib/validations";
+import { createMagicLink, buildMagicLinkUrl } from "@/lib/auth/supplier";
+import { sendSupplierInvitation } from "@/lib/email";
 
 export interface FormState {
   error?: string;
@@ -30,9 +32,9 @@ export async function createOrderAction(_prev: FormState, formData: FormData): P
     return { error: parsed.error.issues[0]?.message ?? "Formulaire invalide." };
   }
 
-  let orderId: string;
+  let order;
   try {
-    const order = await prisma.order.create({
+    order = await prisma.order.create({
       data: {
         reference: parsed.data.reference,
         supplierId: parsed.data.supplierId,
@@ -40,11 +42,33 @@ export async function createOrderAction(_prev: FormState, formData: FormData): P
         createdById: buyer.buyerId,
         lines: { create: parsed.data.lines },
       },
+      include: { supplier: true },
     });
-    orderId = order.id;
   } catch {
     return { error: "Impossible de créer la commande (référence déjà utilisée ?)." };
   }
 
-  redirect(`/acheteur/commandes/${orderId}`);
+  // W1 "Commande émise" : le lien fournisseur et l'email d'invitation
+  // s'enchaînent automatiquement après la création, sans action
+  // supplémentaire de l'acheteur. La commande existe déjà à ce stade : un
+  // échec ici (réseau, quota email...) ne doit jamais être présenté comme un
+  // échec de création — l'acheteur pourra toujours renvoyer un lien
+  // manuellement depuis la page de la commande.
+  try {
+    const { token } = await createMagicLink({
+      supplierId: order.supplierId,
+      orderId: order.id,
+      createdById: buyer.buyerId,
+    });
+    await sendSupplierInvitation({
+      to: order.supplier.email,
+      locale: order.supplier.locale,
+      orderReference: order.reference,
+      magicLinkUrl: buildMagicLinkUrl(token),
+    });
+  } catch (err) {
+    console.error("[createOrderAction] échec de l'invitation automatique :", err);
+  }
+
+  redirect(`/acheteur/commandes/${order.id}`);
 }

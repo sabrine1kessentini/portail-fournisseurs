@@ -17,14 +17,14 @@
     {
       "step": 2,
       "name": "Lien fournisseur",
-      "description": "Génération d'un magic link à usage fournisseur (token opaque haché, expiration 21 jours).",
-      "implemented_in": "lib/auth/supplier.ts:createMagicLink"
+      "description": "Génération automatique d'un magic link scopé à cette commande (token opaque haché, expiration 21 jours), déclenchée immédiatement après la création — aucune action supplémentaire requise de l'acheteur.",
+      "implemented_in": "app/acheteur/(protected)/commandes/actions.ts:createOrderAction (via lib/auth/supplier.ts:createMagicLink)"
     },
     {
       "step": 3,
       "name": "Email d'invitation",
-      "description": "Envoi de l'email d'invitation bilingue (FR/EN selon la préférence du fournisseur) via Resend.",
-      "implemented_in": "lib/email.ts:sendSupplierInvitation"
+      "description": "Envoi automatique de l'email d'invitation bilingue (FR/EN selon la préférence du fournisseur) via Resend, dans la même action que la création. Un échec d'envoi n'annule jamais la commande (déjà créée) ; l'acheteur peut toujours renvoyer un lien manuellement depuis la page de la commande.",
+      "implemented_in": "app/acheteur/(protected)/commandes/actions.ts:createOrderAction (via lib/email.ts:sendSupplierInvitation)"
     },
     {
       "step": 4,
