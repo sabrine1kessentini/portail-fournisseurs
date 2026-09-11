@@ -2,8 +2,13 @@
 // voir README.md section "Architecture" pour le contexte métier.
 
 generator client {
-  provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  provider      = "prisma-client"
+  output        = "../lib/generated/prisma"
+  // "native" pour le dev local (Windows) ; "rhel-openssl-3.0.x" pour le
+  // runtime des fonctions serverless Vercel, qui diffère de l'environnement
+  // de build — sans cette cible explicite, le moteur de requête manque au
+  // runtime en production ("Prisma Client could not locate the Query Engine").
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
