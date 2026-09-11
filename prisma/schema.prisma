@@ -1,0 +1,260 @@
+// Portail Fournisseurs & Relances — schéma de données
+// voir README.md section "Architecture" pour le contexte métier.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Locale {
+  fr
+  en
+}
+
+enum Currency {
+  EUR
+  USD
+}
+
+enum OrderStatus {
+  draft
+  issued
+  cancelled
+  closed
+}
+
+enum OrderLineStatus {
+  pending // en attente de confirmation fournisseur
+  confirmed // accepté tel quel par le fournisseur
+  date_proposed // fournisseur propose une nouvelle date, en attente de validation acheteur
+  partially_confirmed // quantité confirmée < quantité commandée
+  disputed // litige signalé par le fournisseur
+  cancelled
+}
+
+enum ValidationStatus {
+  pending
+  approved
+  rejected
+}
+
+enum DocumentType {
+  proforma_invoice
+  certificate
+  packing_list
+}
+
+enum DocumentStatus {
+  valid
+  expiring_soon // J-15
+  expiring_urgent // J-5
+  expired
+  superseded // remplacé par un document plus récent
+}
+
+enum AlertType {
+  link_not_opened
+  date_change_pending
+  document_expiring_soon
+  document_expiring_urgent
+  document_expired
+}
+
+enum ActorType {
+  buyer
+  supplier
+  system
+}
+
+model Buyer {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  locale       Locale   @default(fr)
+  createdAt    DateTime @default(now())
+
+  ordersCreated     Order[]            @relation("OrderCreatedBy")
+  magicLinksCreated MagicLink[]
+  validations       OrderLineHistory[] @relation("ValidatedByBuyer")
+
+  @@map("buyers")
+}
+
+model Supplier {
+  id              String   @id @default(cuid())
+  name            String
+  email           String   @unique
+  defaultCurrency Currency @default(EUR)
+  locale          Locale   @default(fr)
+  createdAt       DateTime @default(now())
+
+  orders       Order[]
+  magicLinks   MagicLink[]
+  sessions     SupplierSession[]
+  documents    Document[]
+  alertDigests AlertDigest[]
+
+  @@map("suppliers")
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  reference   String      @unique
+  supplierId  String
+  supplier    Supplier    @relation(fields: [supplierId], references: [id])
+  currency    Currency    @default(EUR)
+  status      OrderStatus @default(issued)
+  createdById String
+  createdBy   Buyer       @relation("OrderCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  lines      OrderLine[]
+  magicLinks MagicLink[]
+  documents  Document[]
+
+  @@map("orders")
+}
+
+model OrderLine {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  designation   String
+  quantity      Int
+  unitPrice     Decimal  @db.Decimal(12, 2)
+  requestedDate DateTime
+
+  confirmedQuantity Int?
+  proposedDate      DateTime?
+  reason            String?
+
+  status           OrderLineStatus @default(pending)
+  receptionBlocked Boolean         @default(false)
+  receivedAt       DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  history OrderLineHistory[]
+
+  @@map("order_lines")
+}
+
+// Historise chaque changement de champ (date, quantité...) pour l'affichage
+// du diff ancien/nouveau et le workflow de validation acheteur (W2).
+model OrderLineHistory {
+  id          String    @id @default(cuid())
+  orderLineId String
+  orderLine   OrderLine @relation(fields: [orderLineId], references: [id], onDelete: Cascade)
+
+  field    String // "quantity" | "requestedDate" | "status" ...
+  oldValue String?
+  newValue String?
+  reason   String?
+
+  changedByType ActorType
+  changedAt     DateTime  @default(now())
+
+  validationStatus ValidationStatus @default(pending)
+  validatedById    String?
+  validatedBy      Buyer?           @relation("ValidatedByBuyer", fields: [validatedById], references: [id])
+  validatedAt      DateTime?
+
+  @@map("order_line_history")
+}
+
+// Lien magique fournisseur : jamais de mot de passe côté fournisseur.
+// Le token n'est jamais stocké en clair (seul le hash l'est).
+model MagicLink {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+  orderId    String?
+  order      Order?   @relation(fields: [orderId], references: [id])
+
+  expiresAt DateTime
+  revoked   Boolean   @default(false)
+  openedAt  DateTime? // premier accès, utilisé par la relance W1 "lien non ouvert"
+
+  createdById String
+  createdBy   Buyer    @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+
+  accesses OrderAccessLog[]
+  sessions SupplierSession[]
+
+  @@map("magic_links")
+}
+
+// Trace chaque ouverture du lien (IP + user agent) pour détecter/documenter
+// un lien transféré à un tiers — cas limite explicitement demandé.
+model OrderAccessLog {
+  id          String    @id @default(cuid())
+  magicLinkId String
+  magicLink   MagicLink @relation(fields: [magicLinkId], references: [id], onDelete: Cascade)
+  ip          String?
+  userAgent   String?
+  accessedAt  DateTime  @default(now())
+
+  @@map("order_access_logs")
+}
+
+// Session fournisseur créée après validation d'un magic link : révocable
+// indépendamment du lien d'origine, expiration propre.
+model SupplierSession {
+  id          String    @id @default(cuid())
+  tokenHash   String    @unique
+  supplierId  String
+  supplier    Supplier  @relation(fields: [supplierId], references: [id])
+  magicLinkId String
+  magicLink   MagicLink @relation(fields: [magicLinkId], references: [id])
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+
+  @@map("supplier_sessions")
+}
+
+model Document {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id])
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+
+  type      DocumentType
+  fileUrl   String
+  fileName  String
+  status    DocumentStatus @default(valid)
+  expiresAt DateTime?
+
+  replacesId String?   @unique
+  replaces   Document? @relation("DocumentReplacement", fields: [replacesId], references: [id])
+  replacedBy Document? @relation("DocumentReplacement")
+
+  uploadedAt DateTime @default(now())
+
+  @@map("documents")
+}
+
+// Digest d'alertes groupées (règle "un email par fournisseur, pas par ligne").
+model AlertDigest {
+  id           String    @id @default(cuid())
+  supplierId   String
+  supplier     Supplier  @relation(fields: [supplierId], references: [id])
+  type         AlertType
+  payload      Json
+  scheduledFor DateTime  @default(now())
+  sentAt       DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@map("alert_digests")
+}

@@ -1,103 +1,101 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ClipboardList, Link2, FileCheck2, LineChart, ArrowRight } from "lucide-react";
+import { resolveLocale } from "@/lib/i18n/locale";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 
-export default function Home() {
+export default async function Home() {
+  const locale = await resolveLocale();
+  const d = getDictionary(locale);
+  const isFr = locale === "fr";
+
+  const features = [
+    {
+      icon: ClipboardList,
+      title: isFr ? "Commandes" : "Orders",
+      desc: isFr
+        ? "Lignes, quantités, prix, dates, confirmations partielles et historique des modifications."
+        : "Lines, quantities, prices, dates, partial confirmations and change history.",
+    },
+    {
+      icon: Link2,
+      title: isFr ? "Portail externe" : "External portal",
+      desc: isFr
+        ? "Lien sécurisé expirable, actions limitées et interface bilingue FR/EN."
+        : "Expirable secure link, limited actions and bilingual FR/EN interface.",
+    },
+    {
+      icon: FileCheck2,
+      title: isFr ? "Documents" : "Documents",
+      desc: isFr
+        ? "Facture pro forma, certificat, packing list avec statut et expiration."
+        : "Proforma invoice, certificate, packing list with status and expiry.",
+    },
+    {
+      icon: LineChart,
+      title: isFr ? "Scorecard" : "Scorecard",
+      desc: isFr
+        ? "Ponctualité, taux de conformité, litiges et tendance par période."
+        : "On-time rate, compliance rate, disputes and trend over time.",
+    },
+  ];
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <main className="min-h-svh bg-background">
+      <header className="border-b">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          <span className="text-lg font-semibold tracking-tight">{d.common.appName}</span>
+          <Button render={<Link href="/acheteur/connexion" />}>
+            {isFr ? "Espace acheteur" : "Buyer space"}
+            <ArrowRight className="ml-1 size-4" />
+          </Button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </header>
+
+      <section className="mx-auto max-w-6xl px-6 py-20 text-center">
+        <h1 className="mx-auto max-w-3xl text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
+          {isFr
+            ? "Remplacez les échanges email par un portail fournisseurs unique"
+            : "Replace scattered email threads with a single supplier portal"}
+        </h1>
+        <p className="mx-auto mt-6 max-w-2xl text-balance text-lg text-muted-foreground">
+          {isFr
+            ? "Le fournisseur confirme les lignes et les dates, dépose ses documents, signale un écart. L'acheteur voit immédiatement le risque sur ses commandes."
+            : "Suppliers confirm lines and dates, upload documents, and flag issues. Buyers immediately see the risk on their orders."}
+        </p>
+        <div className="mt-10 flex items-center justify-center gap-4">
+          <Button size="lg" render={<Link href="/acheteur/connexion" />}>
+            {isFr ? "Accéder au tableau de bord" : "Go to dashboard"}
+          </Button>
+        </div>
+        <p className="mt-4 text-sm text-muted-foreground">
+          {isFr
+            ? "Fournisseur ? Vous recevez un lien personnel par email — pas de mot de passe à créer."
+            : "Supplier? You receive a personal link by email — no password to create."}
+        </p>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 pb-24">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {features.map((f) => (
+            <Card key={f.title} className="text-left">
+              <CardHeader>
+                <f.icon className="size-6 text-primary" strokeWidth={1.75} />
+                <CardTitle className="mt-3">{f.title}</CardTitle>
+                <CardDescription>{f.desc}</CardDescription>
+              </CardHeader>
+              <CardContent />
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      <footer className="border-t py-8">
+        <p className="mx-auto max-w-6xl px-6 text-sm text-muted-foreground">
+          {d.common.appName} — {isFr ? "Terrain métier : Achats" : "Business area: Procurement"}
+        </p>
       </footer>
-    </div>
+    </main>
   );
 }
