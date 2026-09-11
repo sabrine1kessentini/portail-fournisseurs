@@ -1,7 +1,7 @@
 import "dotenv/config";
 import fs from "fs";
 import path from "path";
-import { PrismaClient } from "../lib/generated/prisma/client.ts";
+import { PrismaClient } from "../lib/generated/prisma/client";
 
 const prisma = new PrismaClient();
 
