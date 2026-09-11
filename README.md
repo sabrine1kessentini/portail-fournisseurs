@@ -182,6 +182,12 @@ même fournisseur plus d'une fois toutes les 20h, même si le cron est déclench
   pré-version au moment du développement), refusée pour la stabilité du projet (voir §1).
 - **Devises** : pas de taux de change ; le scorecard agrège par fournisseur sans convertir les
   montants entre devises.
+- **Domaine d'envoi Resend** : `onboarding@resend.dev` (gratuit, sans vérification DNS) n'autorise
+  l'envoi qu'à l'adresse email associée au compte Resend, tant qu'aucun domaine personnalisé n'est
+  vérifié. En démo, l'email d'invitation à un fournisseur peut donc ne pas arriver réellement ;
+  l'échec est silencieux (logué, ne bloque jamais l'action). Pour rester testable malgré cette
+  limite, le lien généré est toujours affiché à l'écran (toast) en plus d'être copié — on n'est
+  jamais dépendant de la réception de l'email pour tester le parcours fournisseur.
 
 **Difficulté rencontrée au déploiement** : le premier déploiement Vercel plantait en production
 (500 sur toute route touchant la base) avec `PrismaClientInitializationError: could not locate the

@@ -24,12 +24,20 @@ export function GenerateLinkButton({
   function handleClick() {
     startTransition(async () => {
       const { magicLinkUrl } = await generateAndSendLinkAction({ supplierId, orderId });
+      // Toujours afficher le lien à l'écran (pas seulement le copier) : sur le
+      // domaine d'envoi de test Resend, l'email n'arrive que si l'adresse du
+      // fournisseur correspond au compte Resend — le lien reste donc la seule
+      // façon fiable de le récupérer en démo/test.
       try {
         await navigator.clipboard.writeText(magicLinkUrl);
-        toast.success(copiedLabel);
       } catch {
-        toast.success(magicLinkUrl);
+        // presse-papiers indisponible (ex: contexte non sécurisé) — sans impact,
+        // le lien est affiché ci-dessous dans tous les cas.
       }
+      toast.success(copiedLabel, {
+        description: magicLinkUrl,
+        duration: 15000,
+      });
       router.refresh();
     });
   }
