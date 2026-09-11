@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-09-11T21:58:58.689Z",
+  "generatedAt": "2026-09-11T22:56:46.153Z",
   "note": "Jeu de données de démonstration — voir prisma/seed.ts pour la logique de génération. `npm run db:seed` recrée cet état dans une base fraîche.",
   "buyers": [
     {
-      "id": "cmtxi05q00000ts446jmj72bm",
+      "id": "cmtxk2hyq0000tsccmnjaj7qw",
       "email": "achats@demo.local",
       "name": "Camille Dupont",
       "locale": "fr"
@@ -11,332 +11,332 @@
   ],
   "suppliers": [
     {
-      "id": "cmtxi060t0001ts44wsraisyp",
+      "id": "cmtxk2ial0001tsccgwaj0ylb",
       "name": "Atlas Composants",
       "email": "contact@atlas-composants.demo",
       "defaultCurrency": "EUR",
       "locale": "fr",
-      "createdAt": "2026-09-11T21:58:42.558Z"
+      "createdAt": "2026-09-11T22:56:31.005Z"
     },
     {
-      "id": "cmtxi06bg0002ts4439hcnnwv",
+      "id": "cmtxk2imm0002tscc70u7lfjz",
       "name": "Nordic Parts AB",
       "email": "orders@nordicparts.demo",
       "defaultCurrency": "EUR",
       "locale": "en",
-      "createdAt": "2026-09-11T21:58:42.940Z"
+      "createdAt": "2026-09-11T22:56:31.439Z"
     },
     {
-      "id": "cmtxi06ng0003ts44ram4bryq",
+      "id": "cmtxk2iy10003tsccwpcms1zj",
       "name": "Pacific Trading Co",
       "email": "sales@pacifictrading.demo",
       "defaultCurrency": "USD",
       "locale": "en",
-      "createdAt": "2026-09-11T21:58:43.373Z"
+      "createdAt": "2026-09-11T22:56:31.849Z"
     }
   ],
   "orders": [
     {
-      "id": "cmtxi06yl0005ts448dgjqqs7",
+      "id": "cmtxk2jad0005tscc81mf9acb",
       "reference": "PO-2026-001",
-      "supplierId": "cmtxi060t0001ts44wsraisyp",
+      "supplierId": "cmtxk2ial0001tsccgwaj0ylb",
       "currency": "EUR",
       "status": "issued",
-      "createdById": "cmtxi05q00000ts446jmj72bm",
-      "createdAt": "2026-09-11T21:58:43.773Z",
-      "updatedAt": "2026-09-11T21:58:43.773Z"
+      "createdById": "cmtxk2hyq0000tsccmnjaj7qw",
+      "createdAt": "2026-09-11T22:56:32.291Z",
+      "updatedAt": "2026-09-11T22:56:32.291Z"
     },
     {
-      "id": "cmtxi07xu000cts441i5cqx5y",
+      "id": "cmtxk2kbn000ctsccj6sn70zt",
       "reference": "PO-2026-002",
-      "supplierId": "cmtxi060t0001ts44wsraisyp",
+      "supplierId": "cmtxk2ial0001tsccgwaj0ylb",
       "currency": "EUR",
       "status": "issued",
-      "createdById": "cmtxi05q00000ts446jmj72bm",
-      "createdAt": "2026-09-11T21:58:45.042Z",
-      "updatedAt": "2026-09-11T21:58:45.042Z"
+      "createdById": "cmtxk2hyq0000tsccmnjaj7qw",
+      "createdAt": "2026-09-11T22:56:33.634Z",
+      "updatedAt": "2026-09-11T22:56:33.634Z"
     },
     {
-      "id": "cmtxi09y6000ots44q1j5hm2k",
+      "id": "cmtxk2ma9000otscclf1i37ge",
       "reference": "PO-2026-000",
-      "supplierId": "cmtxi060t0001ts44wsraisyp",
+      "supplierId": "cmtxk2ial0001tsccgwaj0ylb",
       "currency": "EUR",
       "status": "cancelled",
-      "createdById": "cmtxi05q00000ts446jmj72bm",
-      "createdAt": "2026-09-11T21:58:47.646Z",
-      "updatedAt": "2026-09-11T21:58:47.646Z"
+      "createdById": "cmtxk2hyq0000tsccmnjaj7qw",
+      "createdAt": "2026-09-11T22:56:36.177Z",
+      "updatedAt": "2026-09-11T22:56:36.177Z"
     },
     {
-      "id": "cmtxi0ail000rts44394xq3z5",
+      "id": "cmtxk2mst000rtscc6o3utahv",
       "reference": "PO-2026-003",
-      "supplierId": "cmtxi06bg0002ts4439hcnnwv",
+      "supplierId": "cmtxk2imm0002tscc70u7lfjz",
       "currency": "EUR",
       "status": "issued",
-      "createdById": "cmtxi05q00000ts446jmj72bm",
-      "createdAt": "2026-09-11T21:58:48.381Z",
-      "updatedAt": "2026-09-11T21:58:48.381Z"
+      "createdById": "cmtxk2hyq0000tsccmnjaj7qw",
+      "createdAt": "2026-09-11T22:56:36.845Z",
+      "updatedAt": "2026-09-11T22:56:36.845Z"
     },
     {
-      "id": "cmtxi0bgk000xts44fcaz6yy6",
+      "id": "cmtxk2no0000xtsccjc13otzv",
       "reference": "PO-2026-004",
-      "supplierId": "cmtxi06ng0003ts44ram4bryq",
+      "supplierId": "cmtxk2iy10003tsccwpcms1zj",
       "currency": "USD",
       "status": "issued",
-      "createdById": "cmtxi05q00000ts446jmj72bm",
-      "createdAt": "2026-09-11T21:58:49.604Z",
-      "updatedAt": "2026-09-11T21:58:49.604Z"
+      "createdById": "cmtxk2hyq0000tsccmnjaj7qw",
+      "createdAt": "2026-09-11T22:56:37.968Z",
+      "updatedAt": "2026-09-11T22:56:37.968Z"
     }
   ],
   "orderLines": [
     {
-      "id": "cmtxi06yl0006ts44oii4a7je",
-      "orderId": "cmtxi06yl0005ts448dgjqqs7",
+      "id": "cmtxk2jaf0006tscchircw1kq",
+      "orderId": "cmtxk2jad0005tscc81mf9acb",
       "designation": "Carte contrôleur CTL-200",
       "quantity": 500,
       "unitPrice": "12.5",
-      "requestedDate": "2026-10-11T21:58:43.770Z",
+      "requestedDate": "2026-10-11T22:56:32.266Z",
       "confirmedQuantity": 500,
       "proposedDate": null,
       "reason": null,
       "status": "confirmed",
       "receptionBlocked": false,
       "receivedAt": null,
-      "createdAt": "2026-09-11T21:58:43.773Z",
-      "updatedAt": "2026-09-11T21:58:43.773Z"
+      "createdAt": "2026-09-11T22:56:32.291Z",
+      "updatedAt": "2026-09-11T22:56:32.291Z"
     },
     {
-      "id": "cmtxi06yl0007ts44klh6s97w",
-      "orderId": "cmtxi06yl0005ts448dgjqqs7",
+      "id": "cmtxk2jaf0007tscc8qflsclx",
+      "orderId": "cmtxk2jad0005tscc81mf9acb",
       "designation": "Connecteur haute densité HD-9",
       "quantity": 2000,
       "unitPrice": "0.85",
-      "requestedDate": "2026-10-01T21:58:43.770Z",
+      "requestedDate": "2026-10-01T22:56:32.266Z",
       "confirmedQuantity": null,
-      "proposedDate": "2026-10-09T21:58:43.770Z",
+      "proposedDate": "2026-10-09T22:56:32.266Z",
       "reason": "Rupture composant chez notre sous-traitant, délai supplémentaire nécessaire.",
       "status": "date_proposed",
       "receptionBlocked": false,
       "receivedAt": null,
-      "createdAt": "2026-09-11T21:58:43.773Z",
-      "updatedAt": "2026-09-11T21:58:43.773Z"
+      "createdAt": "2026-09-11T22:56:32.291Z",
+      "updatedAt": "2026-09-11T22:56:32.291Z"
     },
     {
-      "id": "cmtxi06yl0008ts442ri1ygzp",
-      "orderId": "cmtxi06yl0005ts448dgjqqs7",
+      "id": "cmtxk2jaf0008tscc05o9gdg4",
+      "orderId": "cmtxk2jad0005tscc81mf9acb",
       "designation": "Boîtier aluminium BX-40",
       "quantity": 300,
       "unitPrice": "4.2",
-      "requestedDate": "2026-10-06T21:58:43.770Z",
+      "requestedDate": "2026-10-06T22:56:32.266Z",
       "confirmedQuantity": null,
       "proposedDate": null,
       "reason": null,
       "status": "pending",
       "receptionBlocked": false,
       "receivedAt": null,
-      "createdAt": "2026-09-11T21:58:43.773Z",
-      "updatedAt": "2026-09-11T21:58:43.773Z"
+      "createdAt": "2026-09-11T22:56:32.291Z",
+      "updatedAt": "2026-09-11T22:56:32.291Z"
     },
     {
-      "id": "cmtxi07xu000dts44p7lnytwt",
-      "orderId": "cmtxi07xu000cts441i5cqx5y",
+      "id": "cmtxk2kbn000dtsccesoeydms",
+      "orderId": "cmtxk2kbn000ctsccj6sn70zt",
       "designation": "Faisceau électrique FX-12",
       "quantity": 150,
       "unitPrice": "22",
-      "requestedDate": "2026-09-26T21:58:45.040Z",
+      "requestedDate": "2026-09-26T22:56:33.621Z",
       "confirmedQuantity": 90,
       "proposedDate": null,
       "reason": null,
       "status": "partially_confirmed",
       "receptionBlocked": true,
       "receivedAt": null,
-      "createdAt": "2026-09-11T21:58:45.042Z",
-      "updatedAt": "2026-09-11T21:58:45.042Z"
+      "createdAt": "2026-09-11T22:56:33.634Z",
+      "updatedAt": "2026-09-11T22:56:33.634Z"
     },
     {
-      "id": "cmtxi07xu000ets442jn26dth",
-      "orderId": "cmtxi07xu000cts441i5cqx5y",
+      "id": "cmtxk2kbn000etscc5h4uo5qm",
+      "orderId": "cmtxk2kbn000ctsccj6sn70zt",
       "designation": "Capot de protection CP-3",
       "quantity": 400,
       "unitPrice": "3.1",
-      "requestedDate": "2026-09-29T21:58:45.040Z",
+      "requestedDate": "2026-09-29T22:56:33.621Z",
       "confirmedQuantity": null,
       "proposedDate": null,
       "reason": "Écart de spécification constaté sur l'échantillon reçu.",
       "status": "disputed",
       "receptionBlocked": false,
       "receivedAt": null,
-      "createdAt": "2026-09-11T21:58:45.042Z",
-      "updatedAt": "2026-09-11T21:58:45.042Z"
+      "createdAt": "2026-09-11T22:56:33.634Z",
+      "updatedAt": "2026-09-11T22:56:33.634Z"
     },
     {
-      "id": "cmtxi09y6000pts44a35ap7tr",
-      "orderId": "cmtxi09y6000ots44q1j5hm2k",
+      "id": "cmtxk2maa000ptscc186ouxn9",
+      "orderId": "cmtxk2ma9000otscclf1i37ge",
       "designation": "Prototype série 0",
       "quantity": 10,
       "unitPrice": "150",
-      "requestedDate": "2026-09-01T21:58:47.642Z",
+      "requestedDate": "2026-09-01T22:56:36.169Z",
       "confirmedQuantity": null,
       "proposedDate": null,
       "reason": null,
       "status": "cancelled",
       "receptionBlocked": false,
       "receivedAt": null,
-      "createdAt": "2026-09-11T21:58:47.646Z",
-      "updatedAt": "2026-09-11T21:58:47.646Z"
+      "createdAt": "2026-09-11T22:56:36.177Z",
+      "updatedAt": "2026-09-11T22:56:36.177Z"
     },
     {
-      "id": "cmtxi0aim000sts44i3xbwqj8",
-      "orderId": "cmtxi0ail000rts44394xq3z5",
+      "id": "cmtxk2mst000stscc1g9pyksp",
+      "orderId": "cmtxk2mst000rtscc6o3utahv",
       "designation": "Steel bracket SB-77",
       "quantity": 1000,
       "unitPrice": "1.4",
-      "requestedDate": "2026-09-23T21:58:48.378Z",
+      "requestedDate": "2026-09-23T22:56:36.835Z",
       "confirmedQuantity": 1000,
       "proposedDate": null,
       "reason": null,
       "status": "confirmed",
       "receptionBlocked": false,
       "receivedAt": null,
-      "createdAt": "2026-09-11T21:58:48.381Z",
-      "updatedAt": "2026-09-11T21:58:48.381Z"
+      "createdAt": "2026-09-11T22:56:36.845Z",
+      "updatedAt": "2026-09-11T22:56:36.845Z"
     },
     {
-      "id": "cmtxi0aim000tts44nlp3bdmn",
-      "orderId": "cmtxi0ail000rts44394xq3z5",
+      "id": "cmtxk2msu000ttscc340l52nq",
+      "orderId": "cmtxk2mst000rtscc6o3utahv",
       "designation": "Insulation foam IF-9",
       "quantity": 600,
       "unitPrice": "2.75",
-      "requestedDate": "2026-10-03T21:58:48.378Z",
+      "requestedDate": "2026-10-03T22:56:36.835Z",
       "confirmedQuantity": null,
       "proposedDate": null,
       "reason": null,
       "status": "pending",
       "receptionBlocked": false,
       "receivedAt": null,
-      "createdAt": "2026-09-11T21:58:48.381Z",
-      "updatedAt": "2026-09-11T21:58:48.381Z"
+      "createdAt": "2026-09-11T22:56:36.845Z",
+      "updatedAt": "2026-09-11T22:56:36.845Z"
     },
     {
-      "id": "cmtxi0bgl000yts44v510m1bb",
-      "orderId": "cmtxi0bgk000xts44fcaz6yy6",
+      "id": "cmtxk2no1000ytscck6ens4gm",
+      "orderId": "cmtxk2no0000xtsccjc13otzv",
       "designation": "Circuit board CB-500",
       "quantity": 250,
       "unitPrice": "18.9",
-      "requestedDate": "2026-10-16T21:58:49.600Z",
+      "requestedDate": "2026-10-16T22:56:37.959Z",
       "confirmedQuantity": null,
       "proposedDate": null,
       "reason": null,
       "status": "pending",
       "receptionBlocked": false,
       "receivedAt": null,
-      "createdAt": "2026-09-11T21:58:49.604Z",
-      "updatedAt": "2026-09-11T21:58:49.604Z"
+      "createdAt": "2026-09-11T22:56:37.968Z",
+      "updatedAt": "2026-09-11T22:56:37.968Z"
     },
     {
-      "id": "cmtxi0bgl000zts440d3j53st",
-      "orderId": "cmtxi0bgk000xts44fcaz6yy6",
+      "id": "cmtxk2no1000ztscc6v2mx2fi",
+      "orderId": "cmtxk2no0000xtsccjc13otzv",
       "designation": "Power module PM-22",
       "quantity": 120,
       "unitPrice": "45",
-      "requestedDate": "2026-10-21T21:58:49.600Z",
+      "requestedDate": "2026-10-21T22:56:37.959Z",
       "confirmedQuantity": 120,
       "proposedDate": null,
       "reason": null,
       "status": "confirmed",
       "receptionBlocked": false,
       "receivedAt": null,
-      "createdAt": "2026-09-11T21:58:49.604Z",
-      "updatedAt": "2026-09-11T21:58:49.604Z"
+      "createdAt": "2026-09-11T22:56:37.968Z",
+      "updatedAt": "2026-09-11T22:56:37.968Z"
     }
   ],
   "orderLineHistory": [
     {
-      "id": "cmtxi07mu000ats44wkjd8y2d",
-      "orderLineId": "cmtxi06yl0007ts44klh6s97w",
+      "id": "cmtxk2k05000atscc8d07dhaq",
+      "orderLineId": "cmtxk2jaf0007tscc8qflsclx",
       "field": "requestedDate",
-      "oldValue": "2026-10-01T21:58:43.770Z",
-      "newValue": "2026-10-09T21:58:43.770Z",
+      "oldValue": "2026-10-01T22:56:32.266Z",
+      "newValue": "2026-10-09T22:56:32.266Z",
       "reason": "Rupture composant chez notre sous-traitant, délai supplémentaire nécessaire.",
       "changedByType": "supplier",
-      "changedAt": "2026-09-11T21:58:44.646Z",
+      "changedAt": "2026-09-11T22:56:33.221Z",
       "validationStatus": "pending",
       "validatedById": null,
       "validatedAt": null
     },
     {
-      "id": "cmtxi08ms000gts44ib9khyfn",
-      "orderLineId": "cmtxi07xu000ets442jn26dth",
+      "id": "cmtxk2l1c000gtscclutmq923",
+      "orderLineId": "cmtxk2kbn000etscc5h4uo5qm",
       "field": "status",
       "oldValue": "pending",
       "newValue": "disputed",
       "reason": "Écart de spécification constaté sur l'échantillon reçu.",
       "changedByType": "supplier",
-      "changedAt": "2026-09-11T21:58:45.941Z",
+      "changedAt": "2026-09-11T22:56:34.560Z",
       "validationStatus": "rejected",
-      "validatedById": "cmtxi05q00000ts446jmj72bm",
-      "validatedAt": "2026-09-11T21:58:45.939Z"
+      "validatedById": "cmtxk2hyq0000tsccmnjaj7qw",
+      "validatedAt": "2026-09-11T22:56:34.551Z"
     }
   ],
   "documents": [
     {
-      "id": "cmtxi08yd000its44p13catq3",
-      "orderId": "cmtxi07xu000cts441i5cqx5y",
-      "supplierId": "cmtxi060t0001ts44wsraisyp",
+      "id": "cmtxk2lcn000itsccy5p0u63t",
+      "orderId": "cmtxk2kbn000ctsccj6sn70zt",
+      "supplierId": "cmtxk2ial0001tsccgwaj0ylb",
       "type": "certificate",
       "fileUrl": "demo/atlas-certificate-expired.pdf",
       "fileName": "certificate-conformite-expired.pdf",
       "status": "expired",
-      "expiresAt": "2026-09-06T21:58:46.354Z",
+      "expiresAt": "2026-09-06T22:56:34.958Z",
       "replacesId": null,
-      "uploadedAt": "2026-09-11T21:58:46.357Z"
+      "uploadedAt": "2026-09-11T22:56:34.967Z"
     },
     {
-      "id": "cmtxi099q000kts44qfc0olwb",
-      "orderId": "cmtxi06yl0005ts448dgjqqs7",
-      "supplierId": "cmtxi060t0001ts44wsraisyp",
+      "id": "cmtxk2lna000ktsccdecl9g53",
+      "orderId": "cmtxk2jad0005tscc81mf9acb",
+      "supplierId": "cmtxk2ial0001tsccgwaj0ylb",
       "type": "packing_list",
       "fileUrl": "demo/atlas-packing-list-v1.pdf",
       "fileName": "packing-list-v1.pdf",
       "status": "superseded",
-      "expiresAt": "2026-08-22T21:58:46.763Z",
+      "expiresAt": "2026-08-22T22:56:35.341Z",
       "replacesId": null,
-      "uploadedAt": "2026-09-11T21:58:46.766Z"
+      "uploadedAt": "2026-09-11T22:56:35.350Z"
     },
     {
-      "id": "cmtxi09lw000mts44lu8l8ifq",
-      "orderId": "cmtxi06yl0005ts448dgjqqs7",
-      "supplierId": "cmtxi060t0001ts44wsraisyp",
+      "id": "cmtxk2lzd000mtscc5mbynlvd",
+      "orderId": "cmtxk2jad0005tscc81mf9acb",
+      "supplierId": "cmtxk2ial0001tsccgwaj0ylb",
       "type": "packing_list",
       "fileUrl": "demo/atlas-packing-list-v2.pdf",
       "fileName": "packing-list-v2.pdf",
       "status": "valid",
-      "expiresAt": "2027-03-10T21:58:47.202Z",
-      "replacesId": "cmtxi099q000kts44qfc0olwb",
-      "uploadedAt": "2026-09-11T21:58:47.204Z"
+      "expiresAt": "2027-03-10T22:56:35.775Z",
+      "replacesId": "cmtxk2lna000ktsccdecl9g53",
+      "uploadedAt": "2026-09-11T22:56:35.784Z"
     },
     {
-      "id": "cmtxi0b4g000vts44ceses661",
-      "orderId": "cmtxi0ail000rts44394xq3z5",
-      "supplierId": "cmtxi06bg0002ts4439hcnnwv",
+      "id": "cmtxk2ncf000vtsccw0fmdhf2",
+      "orderId": "cmtxk2mst000rtscc6o3utahv",
+      "supplierId": "cmtxk2imm0002tscc70u7lfjz",
       "type": "packing_list",
       "fileUrl": "demo/nordic-packing-list.pdf",
       "fileName": "packing-list.pdf",
       "status": "expiring_urgent",
-      "expiresAt": "2026-09-15T21:58:49.165Z",
+      "expiresAt": "2026-09-15T22:56:37.541Z",
       "replacesId": null,
-      "uploadedAt": "2026-09-11T21:58:49.168Z"
+      "uploadedAt": "2026-09-11T22:56:37.551Z"
     },
     {
-      "id": "cmtxi0c090011ts44cgb897vd",
-      "orderId": "cmtxi0bgk000xts44fcaz6yy6",
-      "supplierId": "cmtxi06ng0003ts44ram4bryq",
+      "id": "cmtxk2o700011tscc55xw9brf",
+      "orderId": "cmtxk2no0000xtsccjc13otzv",
+      "supplierId": "cmtxk2iy10003tsccwpcms1zj",
       "type": "proforma_invoice",
       "fileUrl": "demo/pacific-proforma.pdf",
       "fileName": "proforma-invoice.pdf",
       "status": "expiring_soon",
-      "expiresAt": "2026-09-25T21:58:50.311Z",
+      "expiresAt": "2026-09-25T22:56:38.644Z",
       "replacesId": null,
-      "uploadedAt": "2026-09-11T21:58:50.313Z"
+      "uploadedAt": "2026-09-11T22:56:38.652Z"
     }
   ]
 }
