@@ -4,7 +4,7 @@ Portail remplaçant les échanges email dispersés entre acheteurs et fournisseu
 commandes, confirmations ligne par ligne, gestion documentaire (avec expiration et blocage de
 réception), scorecard de performance, et relances automatiques groupées.
 
-**URL de démonstration :** _à compléter après déploiement Vercel_
+**URL de démonstration :** https://portail-fournisseurs.vercel.app
 **Compte acheteur de démo :** `achats@demo.local` / `Demo1234!`
 **Accès fournisseur :** via lien personnel généré depuis l'espace acheteur (voir jeu de données de
 démo dans `demo-data/export.json`, ou générer un nouveau lien depuis l'UI).
