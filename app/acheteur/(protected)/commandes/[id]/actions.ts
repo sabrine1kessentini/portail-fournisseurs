@@ -20,62 +20,77 @@ export async function validateDiffAction(formData: FormData) {
   });
   if (!parsed.success) return;
 
-  const history = await prisma.orderLineHistory.findUnique({
-    where: { id: parsed.data.historyId },
-    include: { orderLine: true },
-  });
-  if (!history || history.validationStatus !== "pending") return;
+  try {
+    const history = await prisma.orderLineHistory.findUnique({
+      where: { id: parsed.data.historyId },
+      include: { orderLine: true },
+    });
+    if (!history || history.validationStatus !== "pending") return;
 
-  await prisma.orderLineHistory.update({
-    where: { id: history.id },
-    data: {
-      validationStatus: parsed.data.decision,
-      validatedById: buyer.buyerId,
-      validatedAt: new Date(),
-    },
-  });
+    await prisma.orderLineHistory.update({
+      where: { id: history.id },
+      data: {
+        validationStatus: parsed.data.decision,
+        validatedById: buyer.buyerId,
+        validatedAt: new Date(),
+      },
+    });
 
-  if (history.field === "requestedDate") {
-    if (parsed.data.decision === "approved" && history.orderLine.proposedDate) {
+    if (history.field === "requestedDate") {
+      if (parsed.data.decision === "approved" && history.orderLine.proposedDate) {
+        await prisma.orderLine.update({
+          where: { id: history.orderLine.id },
+          data: {
+            requestedDate: history.orderLine.proposedDate,
+            proposedDate: null,
+            confirmedQuantity: history.orderLine.quantity,
+            status: "confirmed",
+          },
+        });
+      } else {
+        await prisma.orderLine.update({
+          where: { id: history.orderLine.id },
+          data: { proposedDate: null, reason: null, status: "pending" },
+        });
+      }
+    } else if (history.field === "status" && history.newValue === "disputed") {
       await prisma.orderLine.update({
         where: { id: history.orderLine.id },
-        data: {
-          requestedDate: history.orderLine.proposedDate,
-          proposedDate: null,
-          confirmedQuantity: history.orderLine.quantity,
-          status: "confirmed",
-        },
-      });
-    } else {
-      await prisma.orderLine.update({
-        where: { id: history.orderLine.id },
-        data: { proposedDate: null, reason: null, status: "pending" },
+        data: { status: parsed.data.decision === "approved" ? "disputed" : "pending" },
       });
     }
-  } else if (history.field === "status" && history.newValue === "disputed") {
-    await prisma.orderLine.update({
-      where: { id: history.orderLine.id },
-      data: { status: parsed.data.decision === "approved" ? "disputed" : "pending" },
-    });
-  }
 
-  revalidatePath(`/acheteur/commandes/${history.orderLine.orderId}`);
-  revalidatePath("/acheteur");
-  revalidatePath("/acheteur/validations");
+    revalidatePath(`/acheteur/commandes/${history.orderLine.orderId}`);
+    revalidatePath("/acheteur");
+    revalidatePath("/acheteur/validations");
+  } catch (err) {
+    // Une erreur transitoire (latence base, connexion) ne doit jamais faire
+    // planter la page vers l'écran d'erreur générique : on logue et on
+    // laisse l'acheteur réessayer simplement en recliquant.
+    console.error("[validateDiffAction] échec :", err);
+  }
 }
 
 export async function cancelOrderAction(orderId: string) {
   await requireBuyer();
-  await prisma.$transaction([
-    prisma.order.update({ where: { id: orderId }, data: { status: "cancelled" } }),
-    prisma.orderLine.updateMany({ where: { orderId }, data: { status: "cancelled" } }),
-  ]);
-  revalidatePath(`/acheteur/commandes/${orderId}`);
-  revalidatePath("/acheteur/commandes");
+  try {
+    await prisma.$transaction([
+      prisma.order.update({ where: { id: orderId }, data: { status: "cancelled" } }),
+      prisma.orderLine.updateMany({ where: { orderId }, data: { status: "cancelled" } }),
+    ]);
+    revalidatePath(`/acheteur/commandes/${orderId}`);
+    revalidatePath("/acheteur/commandes");
+  } catch (err) {
+    console.error("[cancelOrderAction] échec :", err);
+  }
 }
 
 export async function markReceivedAction(lineId: string, orderId: string) {
   await requireBuyer();
-  await prisma.orderLine.update({ where: { id: lineId }, data: { receivedAt: new Date() } });
-  revalidatePath(`/acheteur/commandes/${orderId}`);
+  try {
+    await prisma.orderLine.update({ where: { id: lineId }, data: { receivedAt: new Date() } });
+    revalidatePath(`/acheteur/commandes/${orderId}`);
+  } catch (err) {
+    console.error("[markReceivedAction] échec :", err);
+  }
 }

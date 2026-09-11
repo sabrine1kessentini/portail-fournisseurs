@@ -42,38 +42,48 @@ export async function createSupplierAction(
 export async function generateAndSendLinkAction(params: {
   supplierId: string;
   orderId?: string | null;
-}) {
+}): Promise<{ magicLinkUrl?: string; error?: string }> {
   const buyer = await requireBuyer();
-  const supplier = await prisma.supplier.findUniqueOrThrow({ where: { id: params.supplierId } });
 
-  const order = params.orderId
-    ? await prisma.order.findUnique({ where: { id: params.orderId } })
-    : null;
+  try {
+    const supplier = await prisma.supplier.findUniqueOrThrow({ where: { id: params.supplierId } });
 
-  const { token } = await createMagicLink({
-    supplierId: params.supplierId,
-    orderId: params.orderId ?? null,
-    createdById: buyer.buyerId,
-  });
+    const order = params.orderId
+      ? await prisma.order.findUnique({ where: { id: params.orderId } })
+      : null;
 
-  const magicLinkUrl = buildMagicLinkUrl(token);
+    const { token } = await createMagicLink({
+      supplierId: params.supplierId,
+      orderId: params.orderId ?? null,
+      createdById: buyer.buyerId,
+    });
 
-  await sendSupplierInvitation({
-    to: supplier.email,
-    locale: supplier.locale,
-    orderReference: order?.reference ?? "—",
-    magicLinkUrl,
-  });
+    const magicLinkUrl = buildMagicLinkUrl(token);
 
-  if (params.orderId) revalidatePath(`/acheteur/commandes/${params.orderId}`);
-  revalidatePath("/acheteur/fournisseurs");
-  revalidatePath(`/acheteur/fournisseurs/${params.supplierId}`);
+    await sendSupplierInvitation({
+      to: supplier.email,
+      locale: supplier.locale,
+      orderReference: order?.reference ?? "—",
+      magicLinkUrl,
+    });
 
-  return { magicLinkUrl };
+    if (params.orderId) revalidatePath(`/acheteur/commandes/${params.orderId}`);
+    revalidatePath("/acheteur/fournisseurs");
+    revalidatePath(`/acheteur/fournisseurs/${params.supplierId}`);
+
+    return { magicLinkUrl };
+  } catch (err) {
+    console.error("[generateAndSendLinkAction] échec :", err);
+    return { error: "Impossible de générer le lien pour le moment. Réessaie." };
+  }
 }
 
 export async function revokeLinkAction(magicLinkId: string, redirectPath: string) {
   await requireBuyer();
-  await revokeMagicLink(magicLinkId);
-  revalidatePath(redirectPath);
+  try {
+    await revokeMagicLink(magicLinkId);
+    revalidatePath(redirectPath);
+  } catch (err) {
+    console.error("[revokeLinkAction] échec :", err);
+  }
 }

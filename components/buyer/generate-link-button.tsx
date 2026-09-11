@@ -23,7 +23,13 @@ export function GenerateLinkButton({
 
   function handleClick() {
     startTransition(async () => {
-      const { magicLinkUrl } = await generateAndSendLinkAction({ supplierId, orderId });
+      const { magicLinkUrl, error } = await generateAndSendLinkAction({ supplierId, orderId });
+
+      if (!magicLinkUrl) {
+        toast.error(error ?? "Une erreur est survenue.");
+        return;
+      }
+
       // Toujours afficher le lien à l'écran (pas seulement le copier) : sur le
       // domaine d'envoi de test Resend, l'email n'arrive que si l'adresse du
       // fournisseur correspond au compte Resend — le lien reste donc la seule
