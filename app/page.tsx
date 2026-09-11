@@ -46,7 +46,7 @@ export default async function Home() {
       <header className="border-b">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <span className="text-lg font-semibold tracking-tight">{d.common.appName}</span>
-          <Button render={<Link href="/acheteur/connexion" />}>
+          <Button nativeButton={false} render={<Link href="/acheteur/connexion" />}>
             {isFr ? "Espace acheteur" : "Buyer space"}
             <ArrowRight className="ml-1 size-4" />
           </Button>
@@ -65,7 +65,7 @@ export default async function Home() {
             : "Suppliers confirm lines and dates, upload documents, and flag issues. Buyers immediately see the risk on their orders."}
         </p>
         <div className="mt-10 flex items-center justify-center gap-4">
-          <Button size="lg" render={<Link href="/acheteur/connexion" />}>
+          <Button size="lg" nativeButton={false} render={<Link href="/acheteur/connexion" />}>
             {isFr ? "Accéder au tableau de bord" : "Go to dashboard"}
           </Button>
         </div>

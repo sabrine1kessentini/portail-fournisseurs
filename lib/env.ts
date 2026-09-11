@@ -2,9 +2,17 @@ import { z } from "zod";
 
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL est requis"),
+  DIRECT_URL: z.string().min(1, "DIRECT_URL est requis"),
   AUTH_SECRET: z.string().min(16, "AUTH_SECRET doit faire au moins 16 caractères"),
   RESEND_API_KEY: z.string().min(1, "RESEND_API_KEY est requis"),
-  EMAIL_FROM: z.string().email("EMAIL_FROM doit être une adresse email valide"),
+  // Accepte soit une adresse nue ("a@b.com"), soit le format "Nom <a@b.com>"
+  // attendu par Resend pour l'en-tête From.
+  EMAIL_FROM: z
+    .string()
+    .refine(
+      (value) => /^[^<>]+<[^\s@]+@[^\s@]+\.[^\s@]+>$/.test(value) || z.string().email().safeParse(value).success,
+      "EMAIL_FROM doit être une adresse email valide, ou au format \"Nom <email>\""
+    ),
   SUPABASE_URL: z.string().url("SUPABASE_URL doit être une URL valide"),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, "SUPABASE_SERVICE_ROLE_KEY est requis"),
   SUPABASE_STORAGE_BUCKET: z.string().min(1).default("documents"),

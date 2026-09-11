@@ -11,6 +11,11 @@ export default defineConfig({
   },
   engine: "classic",
   datasource: {
-    url: env("DATABASE_URL"),
+    // La CLI (migrate/db push/studio) a besoin d'une connexion supportant les
+    // prepared statements : on utilise DIRECT_URL (session pooler), jamais le
+    // pooler en mode transaction. Le client Prisma à l'exécution (lib/prisma.ts)
+    // ne charge pas ce fichier : il utilise directement `url` du datasource
+    // dans schema.prisma (DATABASE_URL), donc ce choix n'affecte pas l'app.
+    url: env("DIRECT_URL"),
   },
 });

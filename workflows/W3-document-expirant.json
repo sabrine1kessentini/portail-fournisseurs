@@ -1,0 +1,43 @@
+{
+  "id": "W3",
+  "name": "Document expirant",
+  "description": "Détection J-15, relance groupée, escalade à J-5 (copie acheteur), blocage réception si expiré.",
+  "trigger": {
+    "type": "cron",
+    "schedule": "0 6 * * * (quotidien, vercel.json)",
+    "endpoint": "GET /api/cron/daily (protégé par CRON_SECRET)"
+  },
+  "steps": [
+    {
+      "step": 1,
+      "name": "Recalcul des statuts",
+      "description": "Pour chaque document non superseded avec une date d'expiration, le statut est recalculé : valid / expiring_soon (J-15) / expiring_urgent (J-5) / expired.",
+      "implemented_in": "lib/documents.ts:computeDocumentStatus, lib/automations/w3-documents.ts:refreshDocumentStatuses"
+    },
+    {
+      "step": 2,
+      "name": "Détection J-15",
+      "description": "Les documents passant en expiring_soon sont groupés par fournisseur (une relance par fournisseur, jamais par document).",
+      "implemented_in": "lib/automations/w3-documents.ts"
+    },
+    {
+      "step": 3,
+      "name": "Relance groupée",
+      "description": "Email groupé listant tous les documents concernés pour ce fournisseur, avec lien d'accès au portail. Anti-doublon : pas plus d'une relance du même type par fournisseur toutes les 20h (lib/automations/digest-guard.ts).",
+      "implemented_in": "lib/email.ts:sendGroupedReminder"
+    },
+    {
+      "step": 4,
+      "name": "Escalade à J-5",
+      "description": "Les documents en expiring_urgent déclenchent une relance groupée marquée urgente au fournisseur ET une notification séparée à l'acheteur créateur de la commande.",
+      "implemented_in": "lib/automations/w3-documents.ts:sendSupplierDigest"
+    },
+    {
+      "step": 5,
+      "name": "Blocage réception si expiré",
+      "description": "Dès qu'un document passe à 'expired', toutes les lignes de la commande concernée sont marquées receptionBlocked=true. Le blocage est levé automatiquement dès qu'un document de remplacement valide (non expiré) est déposé pour cette commande (cas limite 'document de remplacement').",
+      "implemented_in": "lib/automations/w3-documents.ts (blocage) ; app/fournisseur/(protected)/commandes/[id]/actions.ts:uploadDocumentAction (déblocage)"
+    }
+  ],
+  "limite_documentee": "Le blocage réception est géré au niveau de la commande (toutes les lignes), pas document-à-ligne précisément, faute de règle métier spécifiant quel type de document bloque quelle ligne."
+}

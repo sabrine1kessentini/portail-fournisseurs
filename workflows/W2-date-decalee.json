@@ -1,0 +1,41 @@
+{
+  "id": "W2",
+  "name": "Date décalée",
+  "description": "Le fournisseur propose une nouvelle date (ou signale un litige) sur une ligne, l'acheteur valide ou rejette, le planning est mis à jour.",
+  "trigger": {
+    "type": "action_utilisateur",
+    "description": "Le fournisseur soumet une proposition de date ou un litige sur une ligne encore 'pending' dans le portail /fournisseur."
+  },
+  "steps": [
+    {
+      "step": 1,
+      "name": "Proposition fournisseur",
+      "description": "Le fournisseur choisit 'Proposer une nouvelle date' ou 'Litige', saisit un motif obligatoire. La ligne passe au statut date_proposed/disputed et un enregistrement d'historique (ancien/nouveau) est créé avec validationStatus=pending.",
+      "implemented_in": "app/fournisseur/(protected)/commandes/[id]/actions.ts:confirmLineAction"
+    },
+    {
+      "step": 2,
+      "name": "Calcul d'impact",
+      "description": "L'écart (ancien/nouveau) est affiché explicitement côté acheteur. Simplification documentée : pas de recalcul multi-lignes en cascade, l'impact affiché est l'écart direct sur la ligne concernée.",
+      "implemented_in": "app/acheteur/(protected)/commandes/[id]/page.tsx (section 'Validations en attente')"
+    },
+    {
+      "step": 3,
+      "name": "Notification acheteur",
+      "description": "Un email immédiat (non groupé, car événement unique nécessitant une action) informe l'acheteur créateur de la commande qu'une validation est requise.",
+      "implemented_in": "app/fournisseur/(protected)/commandes/[id]/actions.ts (sendBuyerNotification)"
+    },
+    {
+      "step": 4,
+      "name": "Validation acheteur",
+      "description": "L'acheteur accepte (la nouvelle date devient la référence, la ligne passe 'confirmée') ou rejette (la ligne repasse 'en attente', le fournisseur doit reproposer).",
+      "implemented_in": "app/acheteur/(protected)/commandes/[id]/actions.ts:validateDiffAction"
+    },
+    {
+      "step": 5,
+      "name": "Mise à jour planning",
+      "description": "requestedDate / status de la ligne sont mis à jour ; les pages acheteur et fournisseur sont revalidées immédiatement (revalidatePath).",
+      "implemented_in": "app/acheteur/(protected)/commandes/[id]/actions.ts:validateDiffAction"
+    }
+  ]
+}

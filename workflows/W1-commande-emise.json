@@ -1,0 +1,39 @@
+{
+  "id": "W1",
+  "name": "Commande émise",
+  "description": "Création/import d'une commande, envoi du lien fournisseur, relance si non ouvert.",
+  "note_technique": "Exécuté nativement dans l'application (API routes + cron Vercel), pas via n8n : les technologies suggérées dans le sujet sont explicitement remplaçables si le même niveau fonctionnel est livré. n8n auto-hébergé gratuitement sans carte bancaire n'offre pas une disponibilité 24/7 fiable (les workers gratuits des hébergeurs courants se mettent en veille) ; l'exécution native tourne réellement en production. Ce fichier documente le workflow indépendamment de l'implémentation.",
+  "trigger": {
+    "type": "action_utilisateur",
+    "description": "L'acheteur crée ou importe une commande dans /acheteur/commandes/nouvelle."
+  },
+  "steps": [
+    {
+      "step": 1,
+      "name": "Import / création",
+      "description": "L'acheteur saisit la commande (référence, fournisseur, devise, lignes).",
+      "implemented_in": "app/acheteur/(protected)/commandes/actions.ts:createOrderAction"
+    },
+    {
+      "step": 2,
+      "name": "Lien fournisseur",
+      "description": "Génération d'un magic link à usage fournisseur (token opaque haché, expiration 21 jours).",
+      "implemented_in": "lib/auth/supplier.ts:createMagicLink"
+    },
+    {
+      "step": 3,
+      "name": "Email d'invitation",
+      "description": "Envoi de l'email d'invitation bilingue (FR/EN selon la préférence du fournisseur) via Resend.",
+      "implemented_in": "lib/email.ts:sendSupplierInvitation"
+    },
+    {
+      "step": 4,
+      "name": "Relance si non ouverte",
+      "description": "Cron quotidien : si le lien n'a pas été ouvert (openedAt = null) depuis plus de 3 jours, un nouveau lien est généré et une relance groupée est envoyée (une seule fois par fenêtre de 20h, un email par fournisseur même si plusieurs commandes sont concernées).",
+      "trigger_type": "cron",
+      "schedule": "0 6 * * * (quotidien, vercel.json)",
+      "implemented_in": "lib/automations/w1-relance.ts:runUnopenedLinkReminders",
+      "endpoint": "GET /api/cron/daily (protégé par CRON_SECRET)"
+    }
+  ]
+}
