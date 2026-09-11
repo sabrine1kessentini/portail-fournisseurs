@@ -149,29 +149,45 @@ async function main() {
     },
   });
 
-  // Document expiré qui bloque la réception de la ligne ci-dessus (cas limite : blocage réception)
-  const oldCertificate = await prisma.document.create({
-    data: {
-      orderId: order2.id,
-      supplierId: atlas.id,
-      type: "certificate",
-      fileUrl: "demo/atlas-certificate-v1.pdf",
-      fileName: "certificate-conformite-v1.pdf",
-      status: "expired",
-      expiresAt: daysFromNow(-5),
-    },
-  });
-  // Document de remplacement déposé mais pas encore validé — cas limite "document de remplacement"
+  // Document expiré et jamais remplacé : bloque la réception de la ligne
+  // ci-dessus (cas limite "blocage réception"), volontairement non résolu.
   await prisma.document.create({
     data: {
       orderId: order2.id,
       supplierId: atlas.id,
       type: "certificate",
-      fileUrl: "demo/atlas-certificate-v2.pdf",
-      fileName: "certificate-conformite-v2.pdf",
+      fileUrl: "demo/atlas-certificate-expired.pdf",
+      fileName: "certificate-conformite-expired.pdf",
+      status: "expired",
+      expiresAt: daysFromNow(-5),
+    },
+  });
+
+  // Cas limite "document de remplacement" : distinct de la ligne bloquée
+  // ci-dessus pour ne pas interférer (le blocage est géré au niveau de la
+  // commande, voir README §7). Reflète l'état réel après un remplacement :
+  // l'ancien document passe "superseded", le nouveau est "valid".
+  const oldPackingList = await prisma.document.create({
+    data: {
+      orderId: order1.id,
+      supplierId: atlas.id,
+      type: "packing_list",
+      fileUrl: "demo/atlas-packing-list-v1.pdf",
+      fileName: "packing-list-v1.pdf",
+      status: "superseded",
+      expiresAt: daysFromNow(-20),
+    },
+  });
+  await prisma.document.create({
+    data: {
+      orderId: order1.id,
+      supplierId: atlas.id,
+      type: "packing_list",
+      fileUrl: "demo/atlas-packing-list-v2.pdf",
+      fileName: "packing-list-v2.pdf",
       status: "valid",
       expiresAt: daysFromNow(180),
-      replacesId: oldCertificate.id,
+      replacesId: oldPackingList.id,
     },
   });
 
