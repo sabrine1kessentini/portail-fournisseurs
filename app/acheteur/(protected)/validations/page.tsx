@@ -4,6 +4,7 @@ import { resolveLocale } from "@/lib/i18n/locale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DiffDecisionForm } from "@/components/buyer/diff-decision-form";
+import { ImpactBadge } from "@/components/buyer/impact-badge";
 
 export default async function ValidationsPage() {
   const locale = await resolveLocale();
@@ -68,6 +69,14 @@ export default async function ValidationsPage() {
                 </div>
                 <DiffDecisionForm historyId={history.id} dict={d} />
               </div>
+              {history.field === "requestedDate" && (
+                <p className="mt-2 flex items-center gap-2 text-sm">
+                  <span className="text-xs uppercase text-muted-foreground">
+                    {d.buyerDashboard.impactLabel}
+                  </span>
+                  <ImpactBadge oldIso={history.oldValue!} newIso={history.newValue!} dict={d} />
+                </p>
+              )}
               {history.reason && (
                 <p className="mt-2 text-sm text-muted-foreground">
                   {d.supplierPortal.reason} : {history.reason}

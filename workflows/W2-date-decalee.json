@@ -16,8 +16,8 @@
     {
       "step": 2,
       "name": "Calcul d'impact",
-      "description": "L'écart (ancien/nouveau) est affiché explicitement côté acheteur. Simplification documentée : pas de recalcul multi-lignes en cascade, l'impact affiché est l'écart direct sur la ligne concernée.",
-      "implemented_in": "app/acheteur/(protected)/commandes/[id]/page.tsx (section 'Validations en attente')"
+      "description": "L'écart ancien/nouveau est affiché, ET converti en un indicateur directement actionnable : nombre de jours de retard (badge rouge) ou d'avance (badge neutre), calculé à partir des deux dates plutôt que laissé au calcul mental de l'acheteur. Simplification documentée : pas de recalcul multi-lignes en cascade, l'impact porte sur l'écart direct de la ligne concernée.",
+      "implemented_in": "lib/impact.ts:computeDelayDays, components/buyer/impact-badge.tsx, affiché dans app/acheteur/(protected)/commandes/[id]/page.tsx et app/acheteur/(protected)/validations/page.tsx"
     },
     {
       "step": 3,

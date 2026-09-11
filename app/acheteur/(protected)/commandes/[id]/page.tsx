@@ -11,6 +11,7 @@ import { RevokeLinkButton } from "@/components/buyer/revoke-link-button";
 import { CancelOrderButton } from "./cancel-order-button";
 import { ReceiveLineButton } from "./receive-line-button";
 import { DiffDecisionForm } from "@/components/buyer/diff-decision-form";
+import { ImpactBadge } from "@/components/buyer/impact-badge";
 import { Download, FileWarning } from "lucide-react";
 
 function formatDate(d: Date | null, locale: string) {
@@ -92,6 +93,14 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                   </div>
                   <DiffDecisionForm historyId={history.id} dict={d} />
                 </div>
+                {history.field === "requestedDate" && (
+                  <p className="mt-2 flex items-center gap-2 text-sm">
+                    <span className="text-xs uppercase text-muted-foreground">
+                      {d.buyerDashboard.impactLabel}
+                    </span>
+                    <ImpactBadge oldIso={history.oldValue!} newIso={history.newValue!} dict={d} />
+                  </p>
+                )}
                 {history.reason && (
                   <p className="mt-2 text-sm text-muted-foreground">
                     {d.supplierPortal.reason} : {history.reason}
