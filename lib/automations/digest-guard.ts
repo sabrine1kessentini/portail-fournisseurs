@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import type { AlertType, Prisma } from "@/lib/generated/prisma/client";
+import type { AlertType, Prisma } from "@prisma/client";
 
 const DEDUP_WINDOW_HOURS = 20;
 

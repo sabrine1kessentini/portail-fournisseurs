@@ -1,13 +1,18 @@
 // Portail Fournisseurs & Relances — schéma de données
 // voir README.md section "Architecture" pour le contexte métier.
 
+// Générateur classique (sortie par défaut dans node_modules) plutôt que le
+// nouveau générateur "prisma-client" à sortie personnalisée : Next.js/Vercel
+// ont un traitement spécifique bien établi pour embarquer le moteur Prisma
+// quand il vit dans node_modules/@prisma/client — un chemin de sortie
+// personnalisé (lib/generated/prisma) s'est révélé peu fiable en production
+// (moteur "rhel-openssl-3.0.x" introuvable au runtime malgré binaryTargets
+// et outputFileTracingIncludes).
 generator client {
-  provider      = "prisma-client"
-  output        = "../lib/generated/prisma"
+  provider      = "prisma-client-js"
   // "native" pour le dev local (Windows) ; "rhel-openssl-3.0.x" pour le
   // runtime des fonctions serverless Vercel, qui diffère de l'environnement
-  // de build — sans cette cible explicite, le moteur de requête manque au
-  // runtime en production ("Prisma Client could not locate the Query Engine").
+  // de build.
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 

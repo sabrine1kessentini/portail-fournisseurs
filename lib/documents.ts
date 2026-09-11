@@ -1,4 +1,4 @@
-import type { DocumentStatus } from "@/lib/generated/prisma/client";
+import type { DocumentStatus } from "@prisma/client";
 
 const SOON_THRESHOLD_DAYS = 15;
 const URGENT_THRESHOLD_DAYS = 5;

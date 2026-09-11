@@ -183,6 +183,16 @@ même fournisseur plus d'une fois toutes les 20h, même si le cron est déclench
 - **Devises** : pas de taux de change ; le scorecard agrège par fournisseur sans convertir les
   montants entre devises.
 
+**Difficulté rencontrée au déploiement** : le premier déploiement Vercel plantait en production
+(500 sur toute route touchant la base) avec `PrismaClientInitializationError: could not locate the
+Query Engine for runtime "rhel-openssl-3.0.x"`. Cause : le générateur Prisma "prisma-client" (sortie
+personnalisée `lib/generated/prisma`) ne garantissait pas de façon fiable l'inclusion du moteur natif
+dans le bundle de la fonction serverless, même avec `binaryTargets` et `outputFileTracingIncludes`
+explicites. Diagnostiqué via les logs runtime Vercel, confirmé en reproduisant le build de
+production en local avec les mêmes variables d'environnement. Résolu en repassant au générateur
+classique `prisma-client-js` (sortie par défaut dans `node_modules/@prisma/client`), pour lequel
+Next.js/Vercel ont un traitement dédié bien établi.
+
 ## 8. Tests réalisés
 
 Le script `scripts/smoke-test.ts` (Playwright, navigateur réel) exécute un parcours de bout en

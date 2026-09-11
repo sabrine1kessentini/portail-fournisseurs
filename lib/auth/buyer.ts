@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { getEnv } from "@/lib/env";
-import type { Locale } from "@/lib/generated/prisma/client";
+import type { Locale } from "@prisma/client";
 import { BUYER_COOKIE_NAME } from "./cookie-names";
 
 export { BUYER_COOKIE_NAME };
