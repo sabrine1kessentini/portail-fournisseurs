@@ -21,7 +21,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   const buyer = await getBuyerSession();
   if (buyer) {
-    const url = await getSignedDocumentUrl(document.fileUrl);
+    const url = await getSignedDocumentUrl(document.fileUrl, document.fileName);
     return NextResponse.redirect(url);
   }
 
@@ -31,7 +31,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     supplier.supplierId === document.supplierId &&
     (!supplier.scopedOrderId || supplier.scopedOrderId === document.orderId)
   ) {
-    const url = await getSignedDocumentUrl(document.fileUrl);
+    const url = await getSignedDocumentUrl(document.fileUrl, document.fileName);
     return NextResponse.redirect(url);
   }
 

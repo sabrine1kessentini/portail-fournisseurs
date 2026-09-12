@@ -41,12 +41,17 @@ export async function uploadDocument(params: {
   return { path, fileName: params.file.name };
 }
 
-export async function getSignedDocumentUrl(path: string, expiresInSeconds = 3600) {
+/**
+ * `download: fileName` force l'en-tête Content-Disposition: attachment côté
+ * Supabase — sans ça, le navigateur affiche le fichier inline (image, PDF)
+ * au lieu de proposer un vrai téléchargement.
+ */
+export async function getSignedDocumentUrl(path: string, fileName: string, expiresInSeconds = 3600) {
   const env = getEnv();
   const supabase = getSupabase();
   const { data, error } = await supabase.storage
     .from(env.SUPABASE_STORAGE_BUCKET)
-    .createSignedUrl(path, expiresInSeconds);
+    .createSignedUrl(path, expiresInSeconds, { download: fileName });
 
   if (error || !data) {
     throw new Error(`Impossible de générer le lien du document : ${error?.message}`);
