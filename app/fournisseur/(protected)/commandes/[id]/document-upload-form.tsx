@@ -41,7 +41,11 @@ export function DocumentUploadForm({
         <Label htmlFor="type">{dict.supplierPortal.documentTypeLabel}</Label>
         <Select name="type" defaultValue="proforma_invoice">
           <SelectTrigger id="type" className="w-full">
-            <SelectValue />
+            <SelectValue>
+              {(value: keyof typeof dict.documentType | null) =>
+                value ? dict.documentType[value] : dict.supplierPortal.documentTypeLabel
+              }
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="proforma_invoice">{dict.documentType.proforma_invoice}</SelectItem>
@@ -61,7 +65,11 @@ export function DocumentUploadForm({
           <Label htmlFor="replacesId">{dict.supplierPortal.replaceDocument}</Label>
           <Select name="replacesId">
             <SelectTrigger id="replacesId" className="w-full">
-              <SelectValue placeholder="—" />
+              <SelectValue placeholder="—">
+                {(value: string | null) =>
+                  value ? (replaceableDocs.find((doc) => doc.id === value)?.label ?? value) : "—"
+                }
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {replaceableDocs.map((doc) => (

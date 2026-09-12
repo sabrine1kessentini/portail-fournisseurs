@@ -58,7 +58,15 @@ export function NewOrderForm({
             <Label htmlFor="supplierId">{isFr ? "Fournisseur" : "Supplier"}</Label>
             <Select name="supplierId">
               <SelectTrigger id="supplierId" className="w-full">
-                <SelectValue placeholder={isFr ? "Choisir…" : "Choose…"} />
+                <SelectValue placeholder={isFr ? "Choisir…" : "Choose…"}>
+                  {(value: string | null) =>
+                    value
+                      ? (suppliers.find((s) => s.id === value)?.name ?? value)
+                      : isFr
+                        ? "Choisir…"
+                        : "Choose…"
+                  }
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {suppliers.map((s) => (
