@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { getEnv } from "@/lib/env";
 import { generateToken, hashToken } from "./crypto";
 import { SUPPLIER_COOKIE_NAME } from "./cookie-names";
-import { isLikelyForwarded } from "@/lib/access-log";
 
 export { SUPPLIER_COOKIE_NAME };
 const MAGIC_LINK_TTL_DAYS = 21;
@@ -36,10 +35,10 @@ export function buildMagicLinkUrl(token: string) {
   return `${getEnv().APP_URL}/f/${token}`;
 }
 
-export async function revokeMagicLink(magicLinkId: string) {
+export async function revokeMagicLink(magicLinkId: string, reason: "manual" | "forwarded" = "manual") {
   await prisma.magicLink.update({
     where: { id: magicLinkId },
-    data: { revoked: true },
+    data: { revoked: true, revokedReason: reason },
   });
 }
 
@@ -47,13 +46,20 @@ export async function revokeMagicLink(magicLinkId: string) {
  * Résout un token de lien magique : vérifie validité, journalise l'accès
  * (traçabilité en cas de lien transféré) et ouvre une session fournisseur.
  * Retourne null si le lien est invalide, expiré ou révoqué.
+ *
+ * Cas limite "lien transféré" : la détection ne se base PAS sur l'IP (deux
+ * appareils sur le même réseau/WiFi partagent la même IP publique via le NAT
+ * du routeur — un transfert au sein d'un même bureau serait invisible). Elle
+ * se base sur le **cookie de session** : le premier navigateur à ouvrir le
+ * lien reçoit un cookie et peut continuer à l'utiliser librement (y compris
+ * en revisitant l'URL du lien). Si un DEUXIÈME contexte navigateur (autre
+ * appareil, autre navigateur, navigation privée) sans ce cookie tente
+ * d'ouvrir le même lien — même depuis la même IP — c'est traité comme un
+ * transfert et le lien est bloqué pour tout le monde.
  */
 export async function resolveMagicLinkAndCreateSession(token: string) {
   const tokenHash = hashToken(token);
-  const link = await prisma.magicLink.findUnique({
-    where: { tokenHash },
-    include: { accesses: { select: { ip: true } } },
-  });
+  const link = await prisma.magicLink.findUnique({ where: { tokenHash } });
   if (!link) return null;
 
   const headerList = await headers();
@@ -64,24 +70,29 @@ export async function resolveMagicLinkAndCreateSession(token: string) {
     data: { magicLinkId: link.id, ip, userAgent },
   });
 
-  // Motif déjà connu (précédemment révoqué, manuellement ou automatiquement) :
-  // pas besoin de recalculer, on bloque directement cette tentative.
   if (link.revoked || link.expiresAt < new Date()) {
     return { status: "invalid" as const, reason: "invalid" as const };
   }
 
-  // Cas limite "lien transféré" : au-delà de FORWARDED_LINK_IP_THRESHOLD IP
-  // distinctes ayant ouvert ce lien (accès historiques + celui en cours), on
-  // considère qu'il a été partagé au-delà de son destinataire prévu et on le
-  // bloque — y compris la tentative qui déclenche le seuil, faute de pouvoir
-  // distinguer le détenteur légitime des autres.
-  const allIps = [...link.accesses.map((a) => a.ip), ip];
-  if (isLikelyForwarded(allIps)) {
-    await prisma.magicLink.update({ where: { id: link.id }, data: { revoked: true } });
-    return { status: "invalid" as const, reason: "forwarded" as const };
-  }
+  if (link.openedAt) {
+    const cookieStore = await cookies();
+    const existingToken = cookieStore.get(SUPPLIER_COOKIE_NAME)?.value;
+    const existingSession = existingToken
+      ? await prisma.supplierSession.findFirst({
+          where: {
+            tokenHash: hashToken(existingToken),
+            magicLinkId: link.id,
+            expiresAt: { gt: new Date() },
+          },
+        })
+      : null;
 
-  if (!link.openedAt) {
+    if (!existingSession) {
+      await revokeMagicLink(link.id, "forwarded");
+      return { status: "invalid" as const, reason: "forwarded" as const };
+    }
+    // Même contexte navigateur déjà authentifié pour ce lien : simple revisite, pas un transfert.
+  } else {
     await prisma.magicLink.update({
       where: { id: link.id },
       data: { openedAt: new Date() },

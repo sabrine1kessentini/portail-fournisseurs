@@ -225,8 +225,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           </CardHeader>
           <CardContent className="space-y-3">
             {order.magicLinks.map((link) => {
-              const ips = link.accesses.map((a) => a.ip);
-              const status = classifyMagicLinkStatus(link, ips);
+              const status = classifyMagicLinkStatus(link);
               const statusLabel = {
                 active: d.buyerDashboard.linkStatusActive,
                 expired: d.buyerDashboard.linkStatusExpired,
@@ -255,7 +254,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                     <p className="mt-1 text-xs text-muted-foreground">
                       {d.buyerDashboard.accessCount
                         .replace("{count}", String(link.accesses.length))
-                        .replace("{ips}", String(countDistinctIps(ips)))}
+                        .replace(
+                          "{ips}",
+                          String(countDistinctIps(link.accesses.map((a) => a.ip)))
+                        )}
                     </p>
                   )}
                 </div>

@@ -82,6 +82,11 @@ enum ActorType {
   system
 }
 
+enum RevokeReason {
+  manual // révoqué explicitement par l'acheteur
+  forwarded // bloqué automatiquement : réouvert depuis un contexte navigateur distinct (cas limite "lien transféré")
+}
+
 model Buyer {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -192,9 +197,10 @@ model MagicLink {
   orderId    String?
   order      Order?   @relation(fields: [orderId], references: [id])
 
-  expiresAt DateTime
-  revoked   Boolean   @default(false)
-  openedAt  DateTime? // premier accès, utilisé par la relance W1 "lien non ouvert"
+  expiresAt     DateTime
+  revoked       Boolean       @default(false)
+  revokedReason RevokeReason? // null si non révoqué ; distingue révocation manuelle / blocage auto
+  openedAt      DateTime? // premier accès, utilisé par la relance W1 "lien non ouvert"
 
   createdById String
   createdBy   Buyer    @relation(fields: [createdById], references: [id])
