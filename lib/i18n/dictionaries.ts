@@ -87,7 +87,7 @@ export const dictionaries = {
         "Ce lien n'est plus valide. Contactez votre acheteur pour recevoir un nouveau lien.",
       linkBlockedForwardedTitle: "Lien bloqué pour votre sécurité",
       linkBlockedForwardedBody:
-        "Ce lien a été ouvert depuis plusieurs adresses IP différentes et a donc été désactivé automatiquement, au cas où il aurait été transféré au-delà de son destinataire prévu. Contactez votre acheteur pour recevoir un nouveau lien personnel.",
+        "Ce lien a été ouvert depuis un autre navigateur ou appareil et a donc été désactivé automatiquement, au cas où il aurait été transféré au-delà de son destinataire prévu. Contactez votre acheteur pour recevoir un nouveau lien personnel.",
     },
     buyerDashboard: {
       title: "Tableau de bord achats",
@@ -209,7 +209,7 @@ export const dictionaries = {
       linkExpiredBody: "This link is no longer valid. Contact your buyer for a new link.",
       linkBlockedForwardedTitle: "Link blocked for your security",
       linkBlockedForwardedBody:
-        "This link was opened from several different IP addresses and was automatically disabled, in case it was forwarded beyond its intended recipient. Contact your buyer for a new personal link.",
+        "This link was opened from another browser or device and was automatically disabled, in case it was forwarded beyond its intended recipient. Contact your buyer for a new personal link.",
     },
     buyerDashboard: {
       title: "Procurement dashboard",
