@@ -2,8 +2,9 @@ import { getAllSuppliersScorecards } from "@/lib/scorecard";
 import { resolveLocale } from "@/lib/i18n/locale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { TrendIndicator } from "@/components/ui/trend-indicator";
+import { RateBarChart } from "@/components/buyer/rate-bar-chart";
 
 function pct(value: number | null) {
   return value === null ? "—" : `${Math.round(value * 100)}%`;
@@ -33,15 +34,21 @@ export default async function ScorecardPage() {
               <CardTitle className="text-base">{s.supplierName}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
+              <RateBarChart
+                onTimeRate={s.onTimeRate}
+                complianceRate={s.complianceRate}
+                onTimeLabel={d.scorecard.onTimeRate}
+                complianceLabel={d.scorecard.complianceRate}
+              />
               <Row label={d.scorecard.onTimeRate} value={pct(s.onTimeRate)} />
               <Row label={d.scorecard.complianceRate} value={pct(s.complianceRate)} />
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">{d.scorecard.disputes}</span>
-                <Badge variant={s.disputes > 0 ? "destructive" : "secondary"}>{s.disputes}</Badge>
+                <StatusBadge tone={s.disputes > 0 ? "danger" : "neutral"}>{s.disputes}</StatusBadge>
               </div>
               <div className="flex items-center justify-between border-t pt-3">
                 <span className="text-muted-foreground">{d.scorecard.trend}</span>
-                <TrendBadge trend={s.onTimeTrend} />
+                <TrendIndicator value={s.onTimeTrend} />
               </div>
             </CardContent>
           </Card>
@@ -55,19 +62,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium tabular-nums">{value}</span>
+      <span className="font-mono font-medium tabular-nums">{value}</span>
     </div>
-  );
-}
-
-function TrendBadge({ trend }: { trend: number | null }) {
-  if (trend === null) return <span className="text-muted-foreground">—</span>;
-  const isUp = trend >= 0;
-  const Icon = isUp ? TrendingUp : TrendingDown;
-  return (
-    <span className={`flex items-center gap-1 text-sm font-medium ${isUp ? "text-emerald-600" : "text-destructive"}`}>
-      <Icon className="size-4" />
-      {Math.abs(Math.round(trend * 100))} pts
-    </span>
   );
 }
