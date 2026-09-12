@@ -5,6 +5,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, GitCompareArrows, FileWarning } from "lucide-react";
+import { RunAutomationsButton } from "@/components/buyer/run-automations-button";
 
 export default async function DashboardPage() {
   const locale = await resolveLocale();
@@ -33,8 +34,9 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold tracking-tight">{d.buyerDashboard.title}</h1>
+        <RunAutomationsButton isFr={locale === "fr"} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
