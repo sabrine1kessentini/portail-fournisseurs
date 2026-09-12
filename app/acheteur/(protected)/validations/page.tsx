@@ -15,7 +15,7 @@ export default async function ValidationsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">{d.nav.validations}</h1>
+      <h1 className="font-heading text-3xl font-normal tracking-tight">{d.nav.validations}</h1>
 
       {pending.length === 0 && (
         <p className="text-sm text-muted-foreground">

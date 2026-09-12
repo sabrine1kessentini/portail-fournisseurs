@@ -46,7 +46,12 @@ export default async function Home() {
     <main className="min-h-svh bg-background">
       <header className="border-b">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <span className="text-lg font-semibold tracking-tight">{d.common.appName}</span>
+          <div className="flex items-center gap-2.5">
+            <div className="flex size-7 items-center justify-center rounded-[9px] bg-foreground font-mono text-xs font-medium text-background">
+              P
+            </div>
+            <span className="text-[14.5px] font-medium tracking-tight">{d.common.appName}</span>
+          </div>
           <Button nativeButton={false} render={<Link href="/acheteur/connexion" />}>
             {isFr ? "Espace acheteur" : "Buyer space"}
             <ArrowRight className="ml-1 size-4" />
@@ -59,10 +64,18 @@ export default async function Home() {
           <p className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
             {isFr ? "Centre de pilotage achats" : "Procurement command center"}
           </p>
-          <h1 className="mt-3 text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-            {isFr
-              ? "Remplacez les échanges email par un portail fournisseurs unique"
-              : "Replace scattered email threads with a single supplier portal"}
+          <h1 className="mt-3 text-balance font-heading text-4xl font-normal leading-[1.05] tracking-tight sm:text-5xl">
+            {isFr ? (
+              <>
+                Remplacez les échanges email par un{" "}
+                <em className="text-primary italic">portail fournisseurs unique</em>.
+              </>
+            ) : (
+              <>
+                Replace scattered email threads with a{" "}
+                <em className="text-primary italic">single supplier portal</em>.
+              </>
+            )}
           </h1>
           <p className="mt-6 max-w-xl text-balance text-lg text-muted-foreground">
             {isFr

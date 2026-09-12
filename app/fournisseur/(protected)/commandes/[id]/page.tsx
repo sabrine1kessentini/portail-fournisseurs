@@ -53,7 +53,7 @@ export default async function SupplierOrderDetailPage({
     <div className="space-y-8">
       <div className="space-y-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{order.reference}</h1>
+          <h1 className="font-heading text-3xl font-normal tracking-tight">{order.reference}</h1>
           <p className="text-sm text-muted-foreground">{order.currency}</p>
         </div>
         <OrderProgressHeader progress={progress} isFr={isFr} className="max-w-sm" />

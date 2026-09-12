@@ -10,7 +10,7 @@ export default async function NewOrderPage() {
 
   return (
     <div className="max-w-3xl space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">{d.buyerDashboard.newOrder}</h1>
+      <h1 className="font-heading text-3xl font-normal tracking-tight">{d.buyerDashboard.newOrder}</h1>
       <NewOrderForm
         suppliers={suppliers.map((s) => ({ id: s.id, name: s.name }))}
         locale={locale}

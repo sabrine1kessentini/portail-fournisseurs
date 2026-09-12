@@ -9,7 +9,7 @@ export default async function LoginPage() {
   return (
     <main className="flex min-h-svh items-center justify-center bg-muted/30 px-4">
       <div className="w-full max-w-sm">
-        <h1 className="mb-1 text-center text-2xl font-semibold tracking-tight">
+        <h1 className="mb-1 text-center font-heading text-3xl font-normal tracking-tight">
           {d.common.appName}
         </h1>
         <p className="mb-8 text-center text-sm text-muted-foreground">{d.auth.loginTitle}</p>

@@ -46,7 +46,7 @@ export default async function DashboardPage() {
           <p className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
             {locale === "fr" ? "Centre de pilotage achats" : "Procurement command center"}
           </p>
-          <h1 className="text-2xl font-semibold tracking-tight">{d.buyerDashboard.title}</h1>
+          <h1 className="font-heading text-3xl font-normal tracking-tight">{d.buyerDashboard.title}</h1>
         </div>
         <RunAutomationsButton isFr={locale === "fr"} />
       </div>

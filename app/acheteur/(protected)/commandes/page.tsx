@@ -19,7 +19,7 @@ export default async function OrdersPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">{d.nav.orders}</h1>
+        <h1 className="font-heading text-3xl font-normal tracking-tight">{d.nav.orders}</h1>
         <Button nativeButton={false} render={<Link href="/acheteur/commandes/nouvelle" />}>
           <Plus className="mr-1.5 size-4" />
           {d.buyerDashboard.newOrder}

@@ -19,7 +19,7 @@ export default async function ScorecardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{d.scorecard.title}</h1>
+        <h1 className="font-heading text-3xl font-normal tracking-tight">{d.scorecard.title}</h1>
         <p className="text-sm text-muted-foreground">
           {isFr
             ? "Calculé sur les 90 derniers jours, comparé à la période précédente."
