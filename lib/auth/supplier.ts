@@ -70,33 +70,54 @@ export async function resolveMagicLinkAndCreateSession(token: string) {
     data: { magicLinkId: link.id, ip, userAgent },
   });
 
-  if (link.revoked || link.expiresAt < new Date()) {
+  if (link.expiresAt < new Date()) {
     return { status: "invalid" as const, reason: "invalid" as const };
   }
 
-  if (link.openedAt) {
-    const cookieStore = await cookies();
-    const existingToken = cookieStore.get(SUPPLIER_COOKIE_NAME)?.value;
-    const existingSession = existingToken
-      ? await prisma.supplierSession.findFirst({
-          where: {
-            tokenHash: hashToken(existingToken),
-            magicLinkId: link.id,
-            expiresAt: { gt: new Date() },
-          },
-        })
-      : null;
+  // Le détenteur légitime (celui qui a déjà un cookie de session valide pour
+  // CE lien précis) doit continuer à fonctionner même après un blocage
+  // automatique pour transfert — seul un tiers sans ce cookie est concerné.
+  // Une révocation manuelle par l'acheteur, elle, coupe tout le monde sans
+  // exception : c'est le but du bouton "Révoquer".
+  const cookieStore = await cookies();
+  const existingToken = cookieStore.get(SUPPLIER_COOKIE_NAME)?.value;
+  const existingSession = existingToken
+    ? await prisma.supplierSession.findFirst({
+        where: {
+          tokenHash: hashToken(existingToken),
+          magicLinkId: link.id,
+          expiresAt: { gt: new Date() },
+        },
+      })
+    : null;
 
-    if (!existingSession) {
-      await revokeMagicLink(link.id, "forwarded");
-      return { status: "invalid" as const, reason: "forwarded" as const };
+  if (link.revoked) {
+    if (link.revokedReason === "manual" || !existingSession) {
+      return {
+        status: "invalid" as const,
+        reason: link.revokedReason === "forwarded" ? ("forwarded" as const) : ("invalid" as const),
+      };
     }
-    // Même contexte navigateur déjà authentifié pour ce lien : simple revisite, pas un transfert.
-  } else {
+    // revokedReason === "forwarded" et c'est bien le détenteur d'origine : laissé passer ci-dessous.
+  } else if (link.openedAt && !existingSession) {
+    // Un contexte navigateur sans le cookie légitime tente d'ouvrir un lien
+    // déjà réclamé par quelqu'un d'autre : on bloque, pour tout le monde à
+    // partir de maintenant, sauf le détenteur d'origine (cas ci-dessus).
+    await revokeMagicLink(link.id, "forwarded");
+    return { status: "invalid" as const, reason: "forwarded" as const };
+  }
+
+  if (!link.openedAt) {
     await prisma.magicLink.update({
       where: { id: link.id },
       data: { openedAt: new Date() },
     });
+  }
+
+  if (existingSession) {
+    // Le détenteur d'origine revisite le lien brut : rien à recréer, son
+    // cookie fonctionne déjà.
+    return { status: "ok" as const, supplierId: link.supplierId, orderId: link.orderId };
   }
 
   const sessionToken = generateToken();
@@ -110,7 +131,6 @@ export async function resolveMagicLinkAndCreateSession(token: string) {
     },
   });
 
-  const cookieStore = await cookies();
   cookieStore.set(SUPPLIER_COOKIE_NAME, sessionToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -138,7 +158,15 @@ export interface SupplierSessionInfo {
   scopedOrderId: string | null;
 }
 
-/** Retourne la session fournisseur active, ou null si absente/expirée/révoquée. */
+/**
+ * Retourne la session fournisseur active, ou null si absente/expirée/révoquée.
+ *
+ * Un lien bloqué automatiquement pour transfert (`revokedReason: "forwarded"`)
+ * ne coupe PAS la session du détenteur d'origine — seule une nouvelle
+ * tentative d'ouverture du lien brut sans son cookie est refusée (voir
+ * resolveMagicLinkAndCreateSession). Une révocation manuelle par l'acheteur,
+ * elle, coupe la session immédiatement, sans exception.
+ */
 export async function getSupplierSession(): Promise<SupplierSessionInfo | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(SUPPLIER_COOKIE_NAME)?.value;
@@ -149,7 +177,8 @@ export async function getSupplierSession(): Promise<SupplierSessionInfo | null> 
     include: { supplier: true, magicLink: true },
   });
 
-  if (!session || session.expiresAt < new Date() || session.magicLink.revoked) {
+  if (!session || session.expiresAt < new Date()) return null;
+  if (session.magicLink.revoked && session.magicLink.revokedReason !== "forwarded") {
     return null;
   }
 
