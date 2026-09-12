@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import type { AlertType, Prisma } from "@prisma/client";
 
-const DEDUP_WINDOW_HOURS = 20;
+const DEDUP_WINDOW_HOURS = 0; // TEMP: test manuel, remis à 20 juste après
 
 /** Évite de renvoyer la même relance plusieurs fois si le cron tourne plus d'une fois par jour. */
 export async function hasRecentDigest(supplierId: string, type: AlertType) {
