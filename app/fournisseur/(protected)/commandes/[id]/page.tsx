@@ -4,11 +4,14 @@ import { requireSupplierSession } from "@/lib/auth/guards";
 import { resolveLocale } from "@/lib/i18n/locale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { LineActionForm } from "./line-action-form";
 import { DocumentUploadForm } from "./document-upload-form";
+import { OrderProgressHeader } from "@/components/supplier/order-progress-header";
+import { summarizeLineProgress } from "@/lib/order-progress";
+import { lineStatusTone, documentStatusTone } from "@/lib/status-color";
 
 function formatDate(d: Date | null, locale: string) {
   return d ? d.toLocaleDateString(locale) : "—";
@@ -44,11 +47,16 @@ export default async function SupplierOrderDetailPage({
     (doc) => doc.status === "expired" || doc.status === "expiring_urgent" || doc.status === "expiring_soon"
   );
 
+  const progress = summarizeLineProgress(order.lines);
+
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{order.reference}</h1>
-        <p className="text-sm text-muted-foreground">{order.currency}</p>
+      <div className="space-y-3">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">{order.reference}</h1>
+          <p className="text-sm text-muted-foreground">{order.currency}</p>
+        </div>
+        <OrderProgressHeader progress={progress} isFr={isFr} className="max-w-sm" />
       </div>
 
       {isCancelled && (
@@ -63,9 +71,7 @@ export default async function SupplierOrderDetailPage({
           <Card key={line.id}>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">{line.designation}</CardTitle>
-              <Badge variant={line.status === "disputed" ? "destructive" : "secondary"}>
-                {d.lineStatus[line.status]}
-              </Badge>
+              <StatusBadge tone={lineStatusTone(line.status)}>{d.lineStatus[line.status]}</StatusBadge>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
@@ -114,9 +120,9 @@ export default async function SupplierOrderDetailPage({
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant={doc.status === "expired" ? "destructive" : "secondary"}>
+                  <StatusBadge tone={documentStatusTone(doc.status)}>
                     {d.documentStatus[doc.status]}
-                  </Badge>
+                  </StatusBadge>
                   <Button
                     variant="ghost"
                     size="icon-sm"

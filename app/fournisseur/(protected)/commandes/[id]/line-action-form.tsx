@@ -44,11 +44,12 @@ export function LineActionForm({
       <input type="hidden" name="orderLineId" value={lineId} />
       <input type="hidden" name="action" value={mode} />
 
-      <div className="flex gap-2">
+      <div className="inline-flex w-full gap-1 rounded-lg bg-muted p-1">
         <Button
           type="button"
           size="sm"
-          variant={mode === "accept" ? "default" : "outline"}
+          variant={mode === "accept" ? "default" : "ghost"}
+          className="flex-1"
           onClick={() => setMode("accept")}
         >
           {dict.common.accept}
@@ -56,7 +57,8 @@ export function LineActionForm({
         <Button
           type="button"
           size="sm"
-          variant={mode === "propose_date" ? "default" : "outline"}
+          variant={mode === "propose_date" ? "default" : "ghost"}
+          className="flex-1"
           onClick={() => setMode("propose_date")}
         >
           {dict.supplierPortal.proposeNewDate}
@@ -64,7 +66,8 @@ export function LineActionForm({
         <Button
           type="button"
           size="sm"
-          variant={mode === "dispute" ? "destructive" : "outline"}
+          variant={mode === "dispute" ? "destructive" : "ghost"}
+          className="flex-1"
           onClick={() => setMode("dispute")}
         >
           {dict.lineStatus.disputed}

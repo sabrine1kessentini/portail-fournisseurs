@@ -13,8 +13,12 @@ export default async function SupplierLayout({ children }: { children: React.Rea
       <header className="border-b bg-background">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
           <div>
-            <p className="text-sm text-muted-foreground">{d.supplierPortal.welcome}</p>
-            <p className="font-semibold">{session.supplierName}</p>
+            <p className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
+              {d.common.appName}
+            </p>
+            <p className="text-lg font-semibold tracking-tight">
+              {d.supplierPortal.welcome}, {session.supplierName}
+            </p>
           </div>
           <LocaleSwitcher current={locale} />
         </div>

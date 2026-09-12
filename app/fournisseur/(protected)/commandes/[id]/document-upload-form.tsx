@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DocumentDropzone } from "@/components/supplier/document-dropzone";
 import type { getDictionary } from "@/lib/i18n/dictionaries";
 
 const initialState: FormState = {};
@@ -84,7 +85,13 @@ export function DocumentUploadForm({
 
       <div className="space-y-2">
         <Label htmlFor="file">{dict.supplierPortal.chooseFile}</Label>
-        <Input id="file" name="file" type="file" required accept=".pdf,.png,.jpg,.jpeg" />
+        <DocumentDropzone
+          id="file"
+          name="file"
+          required
+          accept=".pdf,.png,.jpg,.jpeg"
+          label={dict.supplierPortal.chooseFile}
+        />
       </div>
 
       <Button type="submit" className="w-full" disabled={pending}>

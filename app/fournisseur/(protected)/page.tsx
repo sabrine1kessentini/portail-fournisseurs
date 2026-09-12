@@ -5,7 +5,9 @@ import { requireSupplierSession } from "@/lib/auth/guards";
 import { resolveLocale } from "@/lib/i18n/locale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { OrderProgressHeader } from "@/components/supplier/order-progress-header";
+import { summarizeLineProgress } from "@/lib/order-progress";
 
 export default async function SupplierOrdersPage() {
   const session = await requireSupplierSession();
@@ -35,25 +37,23 @@ export default async function SupplierOrdersPage() {
 
       <div className="space-y-3">
         {orders.map((order) => {
-          const pendingCount = order.lines.filter((l) => l.status === "pending").length;
+          const progress = summarizeLineProgress(order.lines);
           return (
             <Link key={order.id} href={`/fournisseur/commandes/${order.id}`}>
               <Card className="transition-colors hover:bg-accent">
-                <CardContent className="flex items-center justify-between py-4">
-                  <div>
-                    <p className="font-medium">{order.reference}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {order.lines.length} {isFr ? "ligne(s)" : "line(s)"} · {order.currency}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {pendingCount > 0 && (
-                      <Badge>{pendingCount} {isFr ? "en attente" : "pending"}</Badge>
-                    )}
-                    <Badge variant={order.status === "cancelled" ? "destructive" : "outline"}>
+                <CardContent className="space-y-3 py-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">{order.reference}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {order.lines.length} {isFr ? "ligne(s)" : "line(s)"} · {order.currency}
+                      </p>
+                    </div>
+                    <StatusBadge tone={order.status === "cancelled" ? "danger" : "neutral"}>
                       {d.orderStatus[order.status]}
-                    </Badge>
+                    </StatusBadge>
                   </div>
+                  <OrderProgressHeader progress={progress} isFr={isFr} />
                 </CardContent>
               </Card>
             </Link>
