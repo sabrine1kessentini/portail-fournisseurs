@@ -6,7 +6,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const result = await resolveMagicLinkAndCreateSession(token);
 
   if (!result || result.status === "invalid") {
-    return NextResponse.redirect(new URL("/fournisseur/lien-expire", request.url));
+    const url = new URL("/fournisseur/lien-expire", request.url);
+    if (result?.reason === "forwarded") url.searchParams.set("reason", "forwarded");
+    return NextResponse.redirect(url);
   }
 
   const destination = result.orderId

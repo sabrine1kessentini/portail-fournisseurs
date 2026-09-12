@@ -85,6 +85,9 @@ export const dictionaries = {
       linkExpiredTitle: "Lien invalide ou expiré",
       linkExpiredBody:
         "Ce lien n'est plus valide. Contactez votre acheteur pour recevoir un nouveau lien.",
+      linkBlockedForwardedTitle: "Lien bloqué pour votre sécurité",
+      linkBlockedForwardedBody:
+        "Ce lien a été ouvert depuis plusieurs adresses IP différentes et a donc été désactivé automatiquement, au cas où il aurait été transféré au-delà de son destinataire prévu. Contactez votre acheteur pour recevoir un nouveau lien personnel.",
     },
     buyerDashboard: {
       title: "Tableau de bord achats",
@@ -105,6 +108,10 @@ export const dictionaries = {
       rejectChange: "Rejeter le changement",
       accessLog: "Historique d'accès au lien",
       accessCount: "{count} ouverture(s) depuis {ips} adresse(s) IP différente(s)",
+      linkStatusActive: "Actif",
+      linkStatusExpired: "Expiré",
+      linkStatusBlockedForwarded: "Bloqué automatiquement (lien transféré)",
+      linkStatusRevokedManual: "Révoqué",
     },
     scorecard: {
       title: "Scorecard fournisseurs",
@@ -200,6 +207,9 @@ export const dictionaries = {
       receptionBlocked: "Reception blocked: required document expired",
       linkExpiredTitle: "Invalid or expired link",
       linkExpiredBody: "This link is no longer valid. Contact your buyer for a new link.",
+      linkBlockedForwardedTitle: "Link blocked for your security",
+      linkBlockedForwardedBody:
+        "This link was opened from several different IP addresses and was automatically disabled, in case it was forwarded beyond its intended recipient. Contact your buyer for a new personal link.",
     },
     buyerDashboard: {
       title: "Procurement dashboard",
@@ -220,6 +230,10 @@ export const dictionaries = {
       rejectChange: "Reject change",
       accessLog: "Link access history",
       accessCount: "{count} view(s) from {ips} distinct IP address(es)",
+      linkStatusActive: "Active",
+      linkStatusExpired: "Expired",
+      linkStatusBlockedForwarded: "Automatically blocked (forwarded link)",
+      linkStatusRevokedManual: "Revoked",
     },
     scorecard: {
       title: "Supplier scorecard",

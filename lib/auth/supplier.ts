@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getEnv } from "@/lib/env";
 import { generateToken, hashToken } from "./crypto";
 import { SUPPLIER_COOKIE_NAME } from "./cookie-names";
+import { isLikelyForwarded } from "@/lib/access-log";
 
 export { SUPPLIER_COOKIE_NAME };
 const MAGIC_LINK_TTL_DAYS = 21;
@@ -49,7 +50,10 @@ export async function revokeMagicLink(magicLinkId: string) {
  */
 export async function resolveMagicLinkAndCreateSession(token: string) {
   const tokenHash = hashToken(token);
-  const link = await prisma.magicLink.findUnique({ where: { tokenHash } });
+  const link = await prisma.magicLink.findUnique({
+    where: { tokenHash },
+    include: { accesses: { select: { ip: true } } },
+  });
   if (!link) return null;
 
   const headerList = await headers();
@@ -60,8 +64,21 @@ export async function resolveMagicLinkAndCreateSession(token: string) {
     data: { magicLinkId: link.id, ip, userAgent },
   });
 
+  // Motif déjà connu (précédemment révoqué, manuellement ou automatiquement) :
+  // pas besoin de recalculer, on bloque directement cette tentative.
   if (link.revoked || link.expiresAt < new Date()) {
-    return { status: "invalid" as const };
+    return { status: "invalid" as const, reason: "invalid" as const };
+  }
+
+  // Cas limite "lien transféré" : au-delà de FORWARDED_LINK_IP_THRESHOLD IP
+  // distinctes ayant ouvert ce lien (accès historiques + celui en cours), on
+  // considère qu'il a été partagé au-delà de son destinataire prévu et on le
+  // bloque — y compris la tentative qui déclenche le seuil, faute de pouvoir
+  // distinguer le détenteur légitime des autres.
+  const allIps = [...link.accesses.map((a) => a.ip), ip];
+  if (isLikelyForwarded(allIps)) {
+    await prisma.magicLink.update({ where: { id: link.id }, data: { revoked: true } });
+    return { status: "invalid" as const, reason: "forwarded" as const };
   }
 
   if (!link.openedAt) {

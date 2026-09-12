@@ -7,6 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { GenerateLinkButton } from "@/components/buyer/generate-link-button";
 import { RevokeLinkButton } from "@/components/buyer/revoke-link-button";
+import { classifyMagicLinkStatus, countDistinctIps } from "@/lib/access-log";
+
+const STATUS_BADGE_VARIANT = {
+  active: "outline",
+  expired: "secondary",
+  blocked_forwarded: "destructive",
+  revoked_manual: "secondary",
+} as const;
 
 export default async function SupplierDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -21,14 +29,13 @@ export default async function SupplierDetailPage({ params }: { params: Promise<{
       magicLinks: {
         where: { orderId: null },
         orderBy: { createdAt: "desc" },
+        take: 5,
         include: { accesses: true },
       },
     },
   });
 
   if (!supplier) notFound();
-
-  const distinctIps = (ips: (string | null)[]) => new Set(ips.filter(Boolean)).size;
 
   return (
     <div className="space-y-6">
@@ -70,30 +77,44 @@ export default async function SupplierDetailPage({ params }: { params: Promise<{
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {supplier.magicLinks
-              .filter((l) => !l.revoked && l.expiresAt > new Date())
-              .map((link) => (
+            {supplier.magicLinks.map((link) => {
+              const ips = link.accesses.map((a) => a.ip);
+              const status = classifyMagicLinkStatus(link, ips);
+              const statusLabel = {
+                active: d.buyerDashboard.linkStatusActive,
+                expired: d.buyerDashboard.linkStatusExpired,
+                blocked_forwarded: d.buyerDashboard.linkStatusBlockedForwarded,
+                revoked_manual: d.buyerDashboard.linkStatusRevokedManual,
+              }[status];
+
+              return (
                 <div key={link.id} className="rounded-md border px-3 py-2 text-sm">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <span>
                       {isFr ? "Expire le" : "Expires"}{" "}
                       {link.expiresAt.toLocaleDateString(locale)}
                     </span>
-                    <RevokeLinkButton
-                      magicLinkId={link.id}
-                      redirectPath={`/acheteur/fournisseurs/${supplier.id}`}
-                      label={d.buyerDashboard.revokeLink}
-                    />
+                    <div className="flex items-center gap-2">
+                      <Badge variant={STATUS_BADGE_VARIANT[status]}>{statusLabel}</Badge>
+                      {status === "active" && (
+                        <RevokeLinkButton
+                          magicLinkId={link.id}
+                          redirectPath={`/acheteur/fournisseurs/${supplier.id}`}
+                          label={d.buyerDashboard.revokeLink}
+                        />
+                      )}
+                    </div>
                   </div>
                   {link.accesses.length > 0 && (
                     <p className="mt-1 text-xs text-muted-foreground">
                       {d.buyerDashboard.accessCount
                         .replace("{count}", String(link.accesses.length))
-                        .replace("{ips}", String(distinctIps(link.accesses.map((a) => a.ip))))}
+                        .replace("{ips}", String(countDistinctIps(ips)))}
                     </p>
                   )}
                 </div>
-              ))}
+              );
+            })}
             <GenerateLinkButton
               supplierId={supplier.id}
               label={d.buyerDashboard.generateLink}

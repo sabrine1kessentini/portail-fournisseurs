@@ -13,6 +13,14 @@ import { ReceiveLineButton } from "./receive-line-button";
 import { DiffDecisionForm } from "@/components/buyer/diff-decision-form";
 import { ImpactBadge } from "@/components/buyer/impact-badge";
 import { Download, FileWarning } from "lucide-react";
+import { classifyMagicLinkStatus, countDistinctIps } from "@/lib/access-log";
+
+const STATUS_BADGE_VARIANT = {
+  active: "outline",
+  expired: "secondary",
+  blocked_forwarded: "destructive",
+  revoked_manual: "secondary",
+} as const;
 
 function formatDate(d: Date | null, locale: string) {
   return d ? d.toLocaleDateString(locale) : "—";
@@ -30,7 +38,12 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       supplier: true,
       lines: { include: { history: { orderBy: { changedAt: "desc" } } }, orderBy: { createdAt: "asc" } },
       documents: { orderBy: { uploadedAt: "desc" } },
-      magicLinks: { where: { orderId: id }, include: { accesses: true } },
+      magicLinks: {
+        where: { orderId: id },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: { accesses: true },
+      },
     },
   });
   if (!order) notFound();
@@ -211,20 +224,43 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {order.magicLinks
-              .filter((l) => !l.revoked && l.expiresAt > new Date())
-              .map((link) => (
-                <div key={link.id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
-                  <span>
-                    {isFr ? "Expire le" : "Expires"} {formatDate(link.expiresAt, locale)}
-                  </span>
-                  <RevokeLinkButton
-                    magicLinkId={link.id}
-                    redirectPath={`/acheteur/commandes/${order.id}`}
-                    label={d.buyerDashboard.revokeLink}
-                  />
+            {order.magicLinks.map((link) => {
+              const ips = link.accesses.map((a) => a.ip);
+              const status = classifyMagicLinkStatus(link, ips);
+              const statusLabel = {
+                active: d.buyerDashboard.linkStatusActive,
+                expired: d.buyerDashboard.linkStatusExpired,
+                blocked_forwarded: d.buyerDashboard.linkStatusBlockedForwarded,
+                revoked_manual: d.buyerDashboard.linkStatusRevokedManual,
+              }[status];
+
+              return (
+                <div key={link.id} className="rounded-md border px-3 py-2 text-sm">
+                  <div className="flex items-center justify-between gap-2">
+                    <span>
+                      {isFr ? "Expire le" : "Expires"} {formatDate(link.expiresAt, locale)}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={STATUS_BADGE_VARIANT[status]}>{statusLabel}</Badge>
+                      {status === "active" && (
+                        <RevokeLinkButton
+                          magicLinkId={link.id}
+                          redirectPath={`/acheteur/commandes/${order.id}`}
+                          label={d.buyerDashboard.revokeLink}
+                        />
+                      )}
+                    </div>
+                  </div>
+                  {link.accesses.length > 0 && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {d.buyerDashboard.accessCount
+                        .replace("{count}", String(link.accesses.length))
+                        .replace("{ips}", String(countDistinctIps(ips)))}
+                    </p>
+                  )}
                 </div>
-              ))}
+              );
+            })}
             <GenerateLinkButton
               supplierId={order.supplierId}
               orderId={order.id}
