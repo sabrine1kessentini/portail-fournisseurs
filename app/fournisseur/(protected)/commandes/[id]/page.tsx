@@ -84,13 +84,6 @@ export default async function SupplierOrderDetailPage({
               {!isCancelled && line.status === "pending" && (
                 <LineActionForm lineId={line.id} maxQuantity={line.quantity} dict={d} />
               )}
-              {!isCancelled && line.status !== "pending" && (
-                <p className="text-sm text-muted-foreground">
-                  {isFr
-                    ? "En attente de validation acheteur ou déjà traitée."
-                    : "Pending buyer validation, or already processed."}
-                </p>
-              )}
             </CardContent>
           </Card>
         ))}
