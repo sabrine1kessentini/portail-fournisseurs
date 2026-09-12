@@ -11,9 +11,12 @@ import { RevokeLinkButton } from "@/components/buyer/revoke-link-button";
 import { CancelOrderButton } from "./cancel-order-button";
 import { ReceiveLineButton } from "./receive-line-button";
 import { ChangeDiffCard } from "@/components/buyer/change-diff-card";
+import { OrderHistoryTimeline } from "@/components/buyer/order-history-timeline";
 import { Download, FileWarning } from "lucide-react";
 import { classifyMagicLinkStatus, countDistinctIps } from "@/lib/access-log";
 import { lineStatusTone, documentStatusTone, type StatusTone } from "@/lib/status-color";
+import { sumOrderValue, formatCurrency } from "@/lib/dashboard-metrics";
+import { buildOrderHistoryTimeline } from "@/lib/order-history";
 
 const LINK_STATUS_TONE: Record<ReturnType<typeof classifyMagicLinkStatus>, StatusTone> = {
   active: "success",
@@ -36,7 +39,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
     where: { id },
     include: {
       supplier: true,
-      lines: { include: { history: { orderBy: { changedAt: "desc" } } }, orderBy: { createdAt: "asc" } },
+      lines: {
+        include: { history: { include: { validatedBy: true }, orderBy: { changedAt: "desc" } } },
+        orderBy: { createdAt: "asc" },
+      },
       documents: { orderBy: { uploadedAt: "desc" } },
       magicLinks: {
         where: { orderId: id },
@@ -50,6 +56,14 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
   const pendingDiffs = order.lines.flatMap((line) =>
     line.history.filter((h) => h.validationStatus === "pending").map((h) => ({ line, history: h }))
+  );
+
+  const orderTotal = sumOrderValue(order.lines);
+  const historyEntries = buildOrderHistoryTimeline(
+    order.lines,
+    order.supplier.name,
+    d.orderHistory,
+    locale
   );
 
   const isCancelled = order.status === "cancelled";
@@ -144,6 +158,21 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               ))}
             </tbody>
           </table>
+          <div className="flex items-center justify-between border-t px-4 py-3">
+            <span className="text-sm text-muted-foreground">{d.buyerDashboard.orderTotal}</span>
+            <span className="font-heading text-xl font-normal">
+              {formatCurrency(orderTotal, order.currency, locale)}
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{d.buyerDashboard.historyTitle}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <OrderHistoryTimeline entries={historyEntries} emptyLabel={d.buyerDashboard.historyEmpty} />
         </CardContent>
       </Card>
 

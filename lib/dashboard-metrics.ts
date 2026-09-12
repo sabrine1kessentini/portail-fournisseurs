@@ -28,3 +28,11 @@ export function bucketDocumentsByUrgency(
 export function sumOrderValue(lines: { quantity: number; unitPrice: unknown }[]): number {
   return lines.reduce((total, line) => total + line.quantity * Number(line.unitPrice), 0);
 }
+
+export function formatCurrency(amount: number, currency: string, locale: string): string {
+  return new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+  }).format(amount);
+}

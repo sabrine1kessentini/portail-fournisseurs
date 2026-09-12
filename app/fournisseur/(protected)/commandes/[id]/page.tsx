@@ -12,6 +12,9 @@ import { DocumentUploadForm } from "./document-upload-form";
 import { OrderProgressHeader } from "@/components/supplier/order-progress-header";
 import { summarizeLineProgress } from "@/lib/order-progress";
 import { lineStatusTone, documentStatusTone } from "@/lib/status-color";
+import { sumOrderValue, formatCurrency } from "@/lib/dashboard-metrics";
+import { buildOrderHistoryTimeline } from "@/lib/order-history";
+import { OrderHistoryTimeline } from "@/components/buyer/order-history-timeline";
 
 function formatDate(d: Date | null, locale: string) {
   return d ? d.toLocaleDateString(locale) : "—";
@@ -35,7 +38,10 @@ export default async function SupplierOrderDetailPage({
   const order = await prisma.order.findUnique({
     where: { id },
     include: {
-      lines: { orderBy: { createdAt: "asc" } },
+      lines: {
+        include: { history: { include: { validatedBy: true }, orderBy: { changedAt: "desc" } } },
+        orderBy: { createdAt: "asc" },
+      },
       documents: { orderBy: { uploadedAt: "desc" } },
     },
   });
@@ -48,6 +54,13 @@ export default async function SupplierOrderDetailPage({
   );
 
   const progress = summarizeLineProgress(order.lines);
+  const orderTotal = sumOrderValue(order.lines);
+  const historyEntries = buildOrderHistoryTimeline(
+    order.lines,
+    isFr ? "Vous" : "You",
+    d.orderHistory,
+    locale
+  );
 
   return (
     <div className="space-y-8">
@@ -93,7 +106,22 @@ export default async function SupplierOrderDetailPage({
             </CardContent>
           </Card>
         ))}
+        <div className="flex items-center justify-between rounded-md border px-4 py-3">
+          <span className="text-sm text-muted-foreground">{d.buyerDashboard.orderTotal}</span>
+          <span className="font-heading text-xl font-normal">
+            {formatCurrency(orderTotal, order.currency, locale)}
+          </span>
+        </div>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{d.buyerDashboard.historyTitle}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <OrderHistoryTimeline entries={historyEntries} emptyLabel={d.buyerDashboard.historyEmpty} />
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
