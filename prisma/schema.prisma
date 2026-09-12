@@ -29,7 +29,7 @@ enum Locale {
 
 enum Currency {
   EUR
-  USD
+  USD // conservé en base pour compatibilité avec des données historiques ; plus proposé côté UI (voir lib/validations.ts)
   TND
 }
 
@@ -107,6 +107,10 @@ model Supplier {
   id              String   @id @default(cuid())
   name            String
   email           String   @unique
+  // Plus saisie à la création (voir new-supplier-form.tsx) : la devise se
+  // choisit désormais uniquement par commande, jamais par fournisseur.
+  // Champ conservé (valeur EUR par défaut, jamais modifiée par l'UI) pour
+  // éviter une migration de colonne sur la base partagée.
   defaultCurrency Currency @default(EUR)
   locale          Locale   @default(fr)
   createdAt       DateTime @default(now())

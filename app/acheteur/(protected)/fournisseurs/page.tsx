@@ -40,7 +40,6 @@ export default async function SuppliersPage() {
                 <p className="text-sm text-muted-foreground">{s.email}</p>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="outline">{s.defaultCurrency}</Badge>
                 <Badge variant="secondary">
                   {s._count.orders} {isFr ? "commande(s)" : "order(s)"}
                 </Badge>

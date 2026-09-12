@@ -5,7 +5,6 @@ import { createSupplierAction, type FormState } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const initialState: FormState = {};
@@ -27,19 +26,6 @@ export function NewSupplierForm({ isFr }: { isFr: boolean }) {
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input id="email" name="email" type="email" required />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="defaultCurrency">{isFr ? "Devise" : "Currency"}</Label>
-        <Select name="defaultCurrency" defaultValue="EUR">
-          <SelectTrigger id="defaultCurrency" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="EUR">EUR</SelectItem>
-            <SelectItem value="USD">USD</SelectItem>
-            <SelectItem value="TND">TND</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
       <Button type="submit" className="w-full" disabled={pending}>
         {isFr ? "Créer" : "Create"}

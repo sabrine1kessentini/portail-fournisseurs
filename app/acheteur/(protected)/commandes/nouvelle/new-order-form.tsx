@@ -28,7 +28,7 @@ export function NewOrderForm({
   suppliers,
   locale,
 }: {
-  suppliers: { id: string; name: string; defaultCurrency: string }[];
+  suppliers: { id: string; name: string }[];
   locale: AppLocale;
 }) {
   const isFr = locale === "fr";
@@ -56,13 +56,7 @@ export function NewOrderForm({
           </div>
           <div className="space-y-2">
             <Label htmlFor="supplierId">{isFr ? "Fournisseur" : "Supplier"}</Label>
-            <Select
-              name="supplierId"
-              onValueChange={(value) => {
-                const s = suppliers.find((sup) => sup.id === value);
-                if (s) setCurrency(s.defaultCurrency);
-              }}
-            >
+            <Select name="supplierId">
               <SelectTrigger id="supplierId" className="w-full">
                 <SelectValue placeholder={isFr ? "Choisir…" : "Choose…"} />
               </SelectTrigger>
@@ -87,7 +81,6 @@ export function NewOrderForm({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="EUR">EUR</SelectItem>
-                <SelectItem value="USD">USD</SelectItem>
                 <SelectItem value="TND">TND</SelectItem>
               </SelectContent>
             </Select>

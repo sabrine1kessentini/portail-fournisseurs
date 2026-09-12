@@ -21,7 +21,6 @@ export async function createSupplierAction(
   const parsed = createSupplierSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
-    defaultCurrency: formData.get("defaultCurrency"),
   });
 
   if (!parsed.success) {

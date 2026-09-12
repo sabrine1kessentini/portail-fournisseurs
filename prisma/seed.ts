@@ -40,13 +40,13 @@ async function main() {
   });
 
   const atlas = await prisma.supplier.create({
-    data: { name: "Atlas Composants", email: "contact@atlas-composants.demo", defaultCurrency: "EUR", locale: "fr" },
+    data: { name: "Atlas Composants", email: "contact@atlas-composants.demo", locale: "fr" },
   });
   const nordic = await prisma.supplier.create({
-    data: { name: "Nordic Parts AB", email: "orders@nordicparts.demo", defaultCurrency: "EUR", locale: "en" },
+    data: { name: "Nordic Parts AB", email: "orders@nordicparts.demo", locale: "en" },
   });
   const pacific = await prisma.supplier.create({
-    data: { name: "Pacific Trading Co", email: "sales@pacifictrading.demo", defaultCurrency: "USD", locale: "en" },
+    data: { name: "Pacific Trading Co", email: "sales@pacifictrading.demo", locale: "en" },
   });
 
   // --- Commande 1 (Atlas, EUR) : mix confirmée / date proposée en attente / en attente ---
@@ -279,12 +279,12 @@ async function main() {
     },
   });
 
-  // --- Commande Pacific (USD) : devise différente ---
+  // --- Commande Pacific (TND) : devise différente d'Atlas/Nordic (EUR) ---
   const order4 = await prisma.order.create({
     data: {
       reference: "PO-2026-004",
       supplierId: pacific.id,
-      currency: "USD",
+      currency: "TND",
       status: "issued",
       createdById: buyer.id,
       lines: {

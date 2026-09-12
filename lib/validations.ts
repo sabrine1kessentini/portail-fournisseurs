@@ -15,14 +15,17 @@ export const orderLineInputSchema = z.object({
 export const createOrderSchema = z.object({
   reference: z.string().min(1, "Référence requise"),
   supplierId: z.string().min(1, "Fournisseur requis"),
-  currency: z.enum(["EUR", "USD", "TND"]),
+  // USD non proposé côté UI (voir new-order-form.tsx) mais reste une valeur
+  // valide en base pour des commandes historiques déjà créées avec.
+  currency: z.enum(["EUR", "TND"]),
   lines: z.array(orderLineInputSchema).min(1, "Au moins une ligne requise"),
 });
 
+// La devise ne se choisit plus à la création d'un fournisseur : elle se fixe
+// uniquement par commande (voir createOrderSchema ci-dessus).
 export const createSupplierSchema = z.object({
   name: z.string().min(1, "Nom requis"),
   email: z.string().email(),
-  defaultCurrency: z.enum(["EUR", "USD", "TND"]),
 });
 
 export const lineConfirmationSchema = z
