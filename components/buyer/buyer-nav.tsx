@@ -55,27 +55,29 @@ function NavLinks({
   );
 }
 
-export function BuyerSidebar({
-  dict,
-  buyerName,
-  buyerEmail,
-}: {
-  dict: ReturnType<typeof getDictionary>;
-  buyerName: string;
-  buyerEmail: string;
-}) {
+/** Horizontal segmented-pill nav for the top bar (desktop only — see BuyerMobileNav for small screens). */
+export function BuyerTopNav({ dict }: { dict: ReturnType<typeof getDictionary> }) {
   const items = useNavItems(dict);
+  const pathname = usePathname();
   return (
-    <aside className="hidden w-[240px] flex-col border-r bg-muted/20 md:flex">
-      <div className="px-5 py-5">
-        <span className="text-base font-semibold tracking-tight">{dict.common.appName}</span>
-      </div>
-      <NavLinks items={items} />
-      <div className="border-t px-5 py-4">
-        <p className="truncate text-sm font-medium">{buyerName}</p>
-        <p className="truncate text-xs text-muted-foreground">{buyerEmail}</p>
-      </div>
-    </aside>
+    <nav className="hidden items-center gap-0.5 rounded-full border bg-muted/40 p-1 md:flex">
+      {items.map((item) => {
+        const active = pathname === item.href;
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`rounded-full px-3.5 py-1.5 text-sm font-medium whitespace-nowrap transition-colors ${
+              active
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {item.label}
+          </Link>
+        );
+      })}
+    </nav>
   );
 }
 

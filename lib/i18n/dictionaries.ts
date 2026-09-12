@@ -18,6 +18,8 @@ export const dictionaries = {
       required: "obligatoire",
       currency: { EUR: "EUR", USD: "USD", TND: "TND" },
       language: "Langue",
+      buyerRoleLabel: "Acheteur",
+      notifications: "Notifications",
     },
     nav: {
       dashboard: "Tableau de bord",
@@ -154,6 +156,8 @@ export const dictionaries = {
       required: "required",
       currency: { EUR: "EUR", USD: "USD", TND: "TND" },
       language: "Language",
+      buyerRoleLabel: "Buyer",
+      notifications: "Notifications",
     },
     nav: {
       dashboard: "Dashboard",

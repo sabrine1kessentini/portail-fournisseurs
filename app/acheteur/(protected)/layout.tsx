@@ -1,39 +1,71 @@
+import Link from "next/link";
 import { requireBuyer } from "@/lib/auth/guards";
 import { resolveLocale } from "@/lib/i18n/locale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { prisma } from "@/lib/prisma";
 import { LocaleSwitcher } from "@/components/locale-switcher";
-import { BuyerSidebar, BuyerMobileNav } from "@/components/buyer/buyer-nav";
+import { BuyerTopNav, BuyerMobileNav } from "@/components/buyer/buyer-nav";
+import { NotificationBell } from "@/components/buyer/notification-bell";
 import { Button } from "@/components/ui/button";
 import { logoutBuyerAction } from "@/app/actions/session";
 import { LogOut } from "lucide-react";
+
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}
 
 export default async function BuyerLayout({ children }: { children: React.ReactNode }) {
   const buyer = await requireBuyer();
   const locale = await resolveLocale();
   const d = getDictionary(locale);
 
-  return (
-    <div className="flex min-h-svh">
-      <BuyerSidebar dict={d} buyerName={buyer.name} buyerEmail={buyer.email} />
+  const pendingCount = await prisma.orderLineHistory.count({ where: { validationStatus: "pending" } });
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between gap-2 border-b px-4 py-3 sm:justify-end sm:px-6">
-          <div className="flex items-center gap-2 sm:hidden">
-            <BuyerMobileNav dict={d} />
-            <span className="text-sm font-semibold tracking-tight">{d.common.appName}</span>
+  return (
+    <div className="flex min-h-svh flex-col">
+      <header className="border-b bg-card">
+        <div className="flex items-center gap-3 px-4 py-3 sm:gap-5 sm:px-6">
+          <BuyerMobileNav dict={d} />
+
+          <Link href="/acheteur" className="flex shrink-0 items-center gap-2.5">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-foreground font-heading text-base text-background">
+              {d.common.appName[0]}
+            </span>
+            <span className="hidden text-sm font-semibold tracking-tight sm:block">
+              {d.common.appName}
+            </span>
+          </Link>
+
+          <div className="flex-1 overflow-x-auto">
+            <BuyerTopNav dict={d} />
           </div>
-          <div className="flex items-center gap-2">
+
+          <div className="ml-auto flex items-center gap-2 sm:gap-3">
             <LocaleSwitcher current={locale} />
+            <NotificationBell count={pendingCount} label={d.common.notifications} />
+            <div className="hidden items-center gap-2 border-l pl-3 sm:flex">
+              <span className="flex size-8 items-center justify-center rounded-full bg-secondary font-mono text-xs font-medium">
+                {initials(buyer.name)}
+              </span>
+              <span className="leading-tight">
+                <span className="block text-sm font-medium">{buyer.name}</span>
+                <span className="block text-xs text-muted-foreground">{d.common.buyerRoleLabel}</span>
+              </span>
+            </div>
             <form action={logoutBuyerAction}>
-              <Button variant="ghost" size="sm" type="submit">
-                <LogOut className="mr-1 size-4" />
-                {d.nav.logout}
+              <Button variant="ghost" size="icon" type="submit" aria-label={d.nav.logout}>
+                <LogOut className="size-4" />
               </Button>
             </form>
           </div>
-        </header>
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6">{children}</main>
-      </div>
+        </div>
+      </header>
+      <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6">{children}</main>
     </div>
   );
 }
