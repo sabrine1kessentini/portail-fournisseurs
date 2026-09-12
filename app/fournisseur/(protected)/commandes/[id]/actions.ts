@@ -58,15 +58,37 @@ export async function confirmLineAction(_prev: FormState, formData: FormData): P
     return { error: "Cette ligne a déjà été traitée." };
   }
 
+  let isQuantityProposal = false;
+
   if (parsed.data.action === "accept") {
     const confirmedQuantity = parsed.data.confirmedQuantity ?? line.quantity;
-    await prisma.orderLine.update({
-      where: { id: line.id },
-      data: {
-        confirmedQuantity,
-        status: confirmedQuantity < line.quantity ? "partially_confirmed" : "confirmed",
-      },
-    });
+    isQuantityProposal = confirmedQuantity < line.quantity;
+    if (isQuantityProposal) {
+      // Comme pour une date proposée : ce n'est pas appliqué directement,
+      // ça ouvre une entrée d'historique "pending" que l'acheteur doit
+      // valider ou rejeter (voir validateDiffAction côté acheteur).
+      await prisma.$transaction([
+        prisma.orderLine.update({
+          where: { id: line.id },
+          data: { status: "quantity_proposed" },
+        }),
+        prisma.orderLineHistory.create({
+          data: {
+            orderLineId: line.id,
+            field: "confirmedQuantity",
+            oldValue: String(line.quantity),
+            newValue: String(confirmedQuantity),
+            changedByType: "supplier",
+            validationStatus: "pending",
+          },
+        }),
+      ]);
+    } else {
+      await prisma.orderLine.update({
+        where: { id: line.id },
+        data: { confirmedQuantity, status: "confirmed" },
+      });
+    }
   } else if (parsed.data.action === "propose_date") {
     await prisma.$transaction([
       prisma.orderLine.update({
@@ -106,7 +128,7 @@ export async function confirmLineAction(_prev: FormState, formData: FormData): P
   revalidatePath("/acheteur/validations");
   revalidatePath(`/acheteur/commandes/${line.orderId}`);
 
-  if (parsed.data.action === "propose_date") {
+  if (parsed.data.action === "propose_date" || isQuantityProposal) {
     const isFr = line.order.createdBy.locale === "fr";
     await sendBuyerNotification({
       to: line.order.createdBy.email,

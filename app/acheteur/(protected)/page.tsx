@@ -18,7 +18,7 @@ export default async function DashboardPage() {
 
   const [atRiskLines, pendingValidations, expiringDocs] = await Promise.all([
     prisma.orderLine.findMany({
-      where: { status: { in: ["date_proposed", "disputed"] } },
+      where: { status: { in: ["date_proposed", "quantity_proposed", "disputed"] } },
       include: { order: { include: { supplier: true } } },
       orderBy: { updatedAt: "desc" },
       take: 8,

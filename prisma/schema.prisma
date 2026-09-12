@@ -44,7 +44,8 @@ enum OrderLineStatus {
   pending // en attente de confirmation fournisseur
   confirmed // accepté tel quel par le fournisseur
   date_proposed // fournisseur propose une nouvelle date, en attente de validation acheteur
-  partially_confirmed // quantité confirmée < quantité commandée
+  quantity_proposed // fournisseur propose une quantité < quantité commandée, en attente de validation acheteur
+  partially_confirmed // quantité réduite validée par l'acheteur (résultat, pas la proposition)
   disputed // litige signalé par le fournisseur
   cancelled
 }

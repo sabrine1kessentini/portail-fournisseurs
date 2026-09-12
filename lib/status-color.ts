@@ -14,6 +14,7 @@ export function lineStatusTone(status: OrderLineStatus): StatusTone {
       return "success";
     case "partially_confirmed":
     case "date_proposed":
+    case "quantity_proposed":
       return "warning";
     case "disputed":
       return "danger";

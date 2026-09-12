@@ -53,6 +53,21 @@ export async function validateDiffAction(formData: FormData) {
           data: { proposedDate: null, reason: null, status: "pending" },
         });
       }
+    } else if (history.field === "confirmedQuantity") {
+      if (parsed.data.decision === "approved") {
+        await prisma.orderLine.update({
+          where: { id: history.orderLine.id },
+          data: {
+            confirmedQuantity: Number(history.newValue),
+            status: "partially_confirmed",
+          },
+        });
+      } else {
+        await prisma.orderLine.update({
+          where: { id: history.orderLine.id },
+          data: { confirmedQuantity: null, status: "pending" },
+        });
+      }
     } else if (history.field === "status" && history.newValue === "disputed") {
       await prisma.orderLine.update({
         where: { id: history.orderLine.id },
