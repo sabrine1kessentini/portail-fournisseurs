@@ -16,7 +16,7 @@ export const dictionaries = {
       close: "Fermer",
       submit: "Envoyer",
       required: "obligatoire",
-      currency: { EUR: "EUR", USD: "USD" },
+      currency: { EUR: "EUR", USD: "USD", TND: "TND" },
       language: "Langue",
     },
     nav: {
@@ -139,7 +139,7 @@ export const dictionaries = {
       close: "Close",
       submit: "Submit",
       required: "required",
-      currency: { EUR: "EUR", USD: "USD" },
+      currency: { EUR: "EUR", USD: "USD", TND: "TND" },
       language: "Language",
     },
     nav: {

@@ -164,7 +164,7 @@ même fournisseur plus d'une fois toutes les 20h, même si le cron est déclench
 | **Confirmation partielle** | `confirmedQuantity < quantity` → statut `partially_confirmed`, sans bloquer les autres lignes de la commande. |
 | **Commande annulée** | Statut `cancelled` propagé à toutes les lignes ; le portail fournisseur affiche un bandeau lecture-seule et masque les actions. |
 | **Document de remplacement** | Un nouvel upload peut référencer (`replacesId`) l'ancien document, qui passe `superseded`. Si le document expiré était la cause d'un blocage de réception, le blocage est levé automatiquement. |
-| **Fournisseur en deux devises** | `currency` est porté par la commande (pas par le fournisseur seul, qui a juste une devise par défaut) ; aucune conversion automatique n'est effectuée — chaque montant reste affiché dans sa devise d'origine. |
+| **Fournisseur en deux devises** | `currency` est porté par la commande (pas par le fournisseur seul, qui a juste une devise par défaut) ; aucune conversion automatique n'est effectuée — chaque montant reste affiché dans sa devise d'origine. Trois devises supportées : EUR, USD, TND. Démontré dans le jeu de données de démo : le fournisseur "Atlas Composants" a des commandes en EUR (`PO-2026-001`, `PO-2026-002`) et une commande en TND (`PO-2026-005`). |
 
 ## 7. Limites connues et compromis assumés
 

@@ -88,6 +88,7 @@ export function NewOrderForm({
               <SelectContent>
                 <SelectItem value="EUR">EUR</SelectItem>
                 <SelectItem value="USD">USD</SelectItem>
+                <SelectItem value="TND">TND</SelectItem>
               </SelectContent>
             </Select>
           </div>

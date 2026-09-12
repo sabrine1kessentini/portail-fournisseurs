@@ -15,14 +15,14 @@ export const orderLineInputSchema = z.object({
 export const createOrderSchema = z.object({
   reference: z.string().min(1, "Référence requise"),
   supplierId: z.string().min(1, "Fournisseur requis"),
-  currency: z.enum(["EUR", "USD"]),
+  currency: z.enum(["EUR", "USD", "TND"]),
   lines: z.array(orderLineInputSchema).min(1, "Au moins une ligne requise"),
 });
 
 export const createSupplierSchema = z.object({
   name: z.string().min(1, "Nom requis"),
   email: z.string().email(),
-  defaultCurrency: z.enum(["EUR", "USD"]),
+  defaultCurrency: z.enum(["EUR", "USD", "TND"]),
 });
 
 export const lineConfirmationSchema = z

@@ -191,6 +191,30 @@ async function main() {
     },
   });
 
+  // --- Commande Atlas en TND (cas limite "fournisseur en deux devises") :
+  // même fournisseur qu'order1/order2 (EUR ci-dessus), devise différente sur
+  // cette commande-ci. Pas de conversion : chaque commande garde la sienne.
+  await prisma.order.create({
+    data: {
+      reference: "PO-2026-005",
+      supplierId: atlas.id,
+      currency: "TND",
+      status: "issued",
+      createdById: buyer.id,
+      lines: {
+        create: [
+          {
+            designation: "Câblage sur mesure CB-TN-1",
+            quantity: 800,
+            unitPrice: 6.9,
+            requestedDate: daysFromNow(20),
+            status: "pending",
+          },
+        ],
+      },
+    },
+  });
+
   // --- Commande annulée (cas limite) ---
   await prisma.order.create({
     data: {
@@ -316,18 +340,31 @@ async function main() {
   const nordicToken = await createDemoLink(nordic.id, null);
   const pacificToken = await createDemoLink(pacific.id, null);
 
-  // Journalise deux accès depuis des IP différentes sur le lien Atlas pour
-  // illustrer le suivi "lien transféré" visible côté acheteur.
-  const atlasLink = await prisma.magicLink.findUnique({ where: { tokenHash: hashToken(atlasToken) } });
-  if (atlasLink) {
-    await prisma.orderAccessLog.createMany({
-      data: [
-        { magicLinkId: atlasLink.id, ip: "203.0.113.10", userAgent: "Mozilla/5.0 (Windows)" },
-        { magicLinkId: atlasLink.id, ip: "198.51.100.42", userAgent: "Mozilla/5.0 (iPhone)" },
-      ],
-    });
-    await prisma.magicLink.update({ where: { id: atlasLink.id }, data: { openedAt: new Date() } });
-  }
+  // Cas limite "lien transféré" : lien de démonstration SÉPARÉ (ne touche pas
+  // à atlasToken ci-dessus, qui doit rester utilisable), déjà bloqué comme il
+  // le serait réellement après qu'un deuxième contexte navigateur (sans le
+  // cookie du détenteur d'origine) ait tenté de l'ouvrir — voir
+  // lib/auth/supplier.ts. Permet de voir le badge "Bloqué automatiquement"
+  // sur la fiche fournisseur sans avoir à reproduire le scénario à la main.
+  const blockedDemoToken = generateToken();
+  const blockedDemoLink = await prisma.magicLink.create({
+    data: {
+      tokenHash: hashToken(blockedDemoToken),
+      supplierId: atlas.id,
+      orderId: null,
+      expiresAt: daysFromNow(21),
+      createdById: buyer.id,
+      openedAt: daysFromNow(-1),
+      revoked: true,
+      revokedReason: "forwarded",
+    },
+  });
+  await prisma.orderAccessLog.createMany({
+    data: [
+      { magicLinkId: blockedDemoLink.id, ip: "203.0.113.10", userAgent: "Mozilla/5.0 (Windows)" },
+      { magicLinkId: blockedDemoLink.id, ip: "203.0.113.10", userAgent: "Mozilla/5.0 (iPhone)" },
+    ],
+  });
 
   console.log("\nDonnées de démonstration créées.");
   console.log("Connexion acheteur : achats@demo.local / Demo1234!\n");

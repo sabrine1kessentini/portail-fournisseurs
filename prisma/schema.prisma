@@ -30,6 +30,7 @@ enum Locale {
 enum Currency {
   EUR
   USD
+  TND
 }
 
 enum OrderStatus {

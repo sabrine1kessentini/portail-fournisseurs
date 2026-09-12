@@ -37,6 +37,7 @@ export function NewSupplierForm({ isFr }: { isFr: boolean }) {
           <SelectContent>
             <SelectItem value="EUR">EUR</SelectItem>
             <SelectItem value="USD">USD</SelectItem>
+            <SelectItem value="TND">TND</SelectItem>
           </SelectContent>
         </Select>
       </div>
