@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { createMagicLink, buildMagicLinkUrl } from "@/lib/auth/supplier";
-import { sendGroupedReminder } from "@/lib/email";
+import { sendUnopenedLinkReminder } from "@/lib/email";
 import { hasRecentDigest, recordDigest } from "./digest-guard";
 
 const UNOPENED_THRESHOLD_DAYS = 3;
@@ -42,7 +42,7 @@ export async function runUnopenedLinkReminders() {
       createdById: links[0].createdById,
     });
 
-    await sendGroupedReminder({
+    await sendUnopenedLinkReminder({
       to: supplier.email,
       locale: supplier.locale,
       magicLinkUrl: buildMagicLinkUrl(token),

@@ -122,8 +122,9 @@ export const dictionaries = {
     },
     emails: {
       invitationSubject: "Nouvelle commande {reference} — confirmation requise",
-      reminderSubject: "Rappel — {count} action(s) en attente sur vos commandes",
-      escalationSubject: "Urgent — document expirant sous 5 jours",
+      linkReminderSubject: "Rappel — confirmation en attente sur {count} commande(s)",
+      documentReminderSubject: "Document(s) à renouveler — {count} document(s) expirant bientôt",
+      escalationSubject: "Urgent — {count} document(s) expirant sous 5 jours",
     },
   },
   en: {
@@ -244,8 +245,9 @@ export const dictionaries = {
     },
     emails: {
       invitationSubject: "New order {reference} — confirmation required",
-      reminderSubject: "Reminder — {count} pending action(s) on your orders",
-      escalationSubject: "Urgent — document expiring in 5 days",
+      linkReminderSubject: "Reminder — confirmation pending on {count} order(s)",
+      documentReminderSubject: "Document(s) to renew — {count} document(s) expiring soon",
+      escalationSubject: "Urgent — {count} document(s) expiring in 5 days",
     },
   },
 } as const;

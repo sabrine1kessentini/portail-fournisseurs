@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { createMagicLink, buildMagicLinkUrl } from "@/lib/auth/supplier";
-import { sendGroupedReminder, sendBuyerNotification } from "@/lib/email";
+import { sendDocumentDigest, sendBuyerNotification } from "@/lib/email";
 import { computeDocumentStatus } from "@/lib/documents";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import { hasRecentDigest, recordDigest } from "./digest-guard";
 
 /**
@@ -66,7 +67,7 @@ async function sendSupplierDigest(
   supplierId: string,
   docs: Array<{
     id: string;
-    type: string;
+    type: keyof ReturnType<typeof getDictionary>["documentType"];
     expiresAt: Date | null;
     order: { reference: string; createdBy: { id: string; email: string; locale: "fr" | "en" } };
   }>,
@@ -75,6 +76,7 @@ async function sendSupplierDigest(
 ) {
   const supplier = await prisma.supplier.findUniqueOrThrow({ where: { id: supplierId } });
   const anyBuyer = docs[0].order.createdBy;
+  const d = getDictionary(supplier.locale);
 
   const { token } = await createMagicLink({
     supplierId,
@@ -82,14 +84,14 @@ async function sendSupplierDigest(
     createdById: docs[0].order.createdBy.id,
   });
 
-  await sendGroupedReminder({
+  await sendDocumentDigest({
     to: supplier.email,
     locale: supplier.locale,
     urgent,
     magicLinkUrl: buildMagicLinkUrl(token),
-    items: docs.map((d) => ({
-      label: d.order.reference,
-      detail: d.expiresAt ? new Date(d.expiresAt).toLocaleDateString(supplier.locale) : undefined,
+    items: docs.map((doc) => ({
+      label: `${doc.order.reference} — ${d.documentType[doc.type]}`,
+      detail: doc.expiresAt ? new Date(doc.expiresAt).toLocaleDateString(supplier.locale) : undefined,
     })),
   });
 
