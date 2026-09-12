@@ -14,7 +14,11 @@ export function DiffDecisionForm({
       <form action={validateDiffAction}>
         <input type="hidden" name="historyId" value={historyId} />
         <input type="hidden" name="decision" value="approved" />
-        <Button type="submit" size="sm" className="w-full">
+        <Button
+          type="submit"
+          size="sm"
+          className="w-full bg-success text-success-foreground hover:bg-success/90"
+        >
           {dict.buyerDashboard.validateChange}
         </Button>
       </form>

@@ -3,24 +3,24 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { resolveLocale } from "@/lib/i18n/locale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GenerateLinkButton } from "@/components/buyer/generate-link-button";
 import { RevokeLinkButton } from "@/components/buyer/revoke-link-button";
 import { CancelOrderButton } from "./cancel-order-button";
 import { ReceiveLineButton } from "./receive-line-button";
-import { DiffDecisionForm } from "@/components/buyer/diff-decision-form";
-import { ImpactBadge } from "@/components/buyer/impact-badge";
+import { ChangeDiffCard } from "@/components/buyer/change-diff-card";
 import { Download, FileWarning } from "lucide-react";
 import { classifyMagicLinkStatus, countDistinctIps } from "@/lib/access-log";
+import { lineStatusTone, documentStatusTone, type StatusTone } from "@/lib/status-color";
 
-const STATUS_BADGE_VARIANT = {
-  active: "outline",
-  expired: "secondary",
-  blocked_forwarded: "destructive",
-  revoked_manual: "secondary",
-} as const;
+const LINK_STATUS_TONE: Record<ReturnType<typeof classifyMagicLinkStatus>, StatusTone> = {
+  active: "success",
+  expired: "neutral",
+  blocked_forwarded: "danger",
+  revoked_manual: "neutral",
+};
 
 function formatDate(d: Date | null, locale: string) {
   return d ? d.toLocaleDateString(locale) : "—";
@@ -67,7 +67,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant={isCancelled ? "destructive" : "outline"}>{d.orderStatus[order.status]}</Badge>
+          <StatusBadge tone={isCancelled ? "danger" : "neutral"}>{d.orderStatus[order.status]}</StatusBadge>
           {!isCancelled && <CancelOrderButton orderId={order.id} isFr={isFr} />}
         </div>
       </div>
@@ -85,41 +85,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           </CardHeader>
           <CardContent className="space-y-3">
             {pendingDiffs.map(({ line, history }) => (
-              <div key={history.id} className="rounded-md border p-4">
-                <p className="mb-2 text-sm font-medium">{line.designation}</p>
-                <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-[1fr_1fr_auto]">
-                  <div>
-                    <p className="text-xs uppercase text-muted-foreground">{d.buyerDashboard.diffOld}</p>
-                    <p className="line-through opacity-70">
-                      {history.field === "requestedDate"
-                        ? formatDate(new Date(history.oldValue!), locale)
-                        : history.oldValue}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs uppercase text-muted-foreground">{d.buyerDashboard.diffNew}</p>
-                    <p className="font-medium text-foreground">
-                      {history.field === "requestedDate"
-                        ? formatDate(new Date(history.newValue!), locale)
-                        : history.newValue}
-                    </p>
-                  </div>
-                  <DiffDecisionForm historyId={history.id} dict={d} />
-                </div>
-                {history.field === "requestedDate" && (
-                  <p className="mt-2 flex items-center gap-2 text-sm">
-                    <span className="text-xs uppercase text-muted-foreground">
-                      {d.buyerDashboard.impactLabel}
-                    </span>
-                    <ImpactBadge oldIso={history.oldValue!} newIso={history.newValue!} dict={d} />
-                  </p>
-                )}
-                {history.reason && (
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {d.supplierPortal.reason} : {history.reason}
-                  </p>
-                )}
-              </div>
+              <ChangeDiffCard key={history.id} line={line} history={history} dict={d} locale={locale} />
             ))}
           </CardContent>
         </Card>
@@ -157,9 +123,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                   <td className="px-4 py-2.5">{formatDate(line.requestedDate, locale)}</td>
                   <td className="px-4 py-2.5">{line.confirmedQuantity ?? "—"}</td>
                   <td className="px-4 py-2.5">
-                    <Badge variant={line.status === "disputed" ? "destructive" : "secondary"}>
-                      {d.lineStatus[line.status]}
-                    </Badge>
+                    <StatusBadge tone={lineStatusTone(line.status)}>{d.lineStatus[line.status]}</StatusBadge>
                     {line.status === "disputed" && line.reason && (
                       <p className="mt-1 max-w-xs text-xs text-muted-foreground">
                         {d.supplierPortal.reason} : {line.reason}
@@ -205,9 +169,9 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant={doc.status === "expired" ? "destructive" : "secondary"}>
+                  <StatusBadge tone={documentStatusTone(doc.status)}>
                     {d.documentStatus[doc.status]}
-                  </Badge>
+                  </StatusBadge>
                   <Button
                     variant="ghost"
                     size="icon-sm"
@@ -245,7 +209,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                       {isFr ? "Expire le" : "Expires"} {formatDate(link.expiresAt, locale)}
                     </span>
                     <div className="flex items-center gap-2">
-                      <Badge variant={STATUS_BADGE_VARIANT[status]}>{statusLabel}</Badge>
+                      <StatusBadge tone={LINK_STATUS_TONE[status]}>{statusLabel}</StatusBadge>
                       {status === "active" && (
                         <RevokeLinkButton
                           magicLinkId={link.id}

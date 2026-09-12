@@ -1,5 +1,6 @@
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { computeDelayDays } from "@/lib/impact";
+import { impactSeverityTone } from "@/lib/impact-severity";
 import type { getDictionary } from "@/lib/i18n/dictionaries";
 
 export function ImpactBadge({
@@ -14,14 +15,14 @@ export function ImpactBadge({
   const days = computeDelayDays(oldIso, newIso);
 
   if (days === 0) {
-    return <Badge variant="secondary">{dict.buyerDashboard.impactNone}</Badge>;
+    return <StatusBadge tone="success">{dict.buyerDashboard.impactNone}</StatusBadge>;
   }
 
   const label = days > 0 ? dict.buyerDashboard.impactDelay : dict.buyerDashboard.impactEarly;
 
   return (
-    <Badge variant={days > 0 ? "destructive" : "secondary"}>
+    <StatusBadge tone={impactSeverityTone(days)}>
       {label.replace("{days}", String(Math.abs(days)))}
-    </Badge>
+    </StatusBadge>
   );
 }
