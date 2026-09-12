@@ -131,7 +131,12 @@ d'implémentation) dans un schéma JSON propre au projet — pas un export n8n s
 - **W1 — Commande émise** : création → lien magique → email d'invitation (immédiat) → si non
   ouvert après 3 jours, relance groupée quotidienne (`lib/automations/w1-relance.ts`).
 - **W2 — Date décalée** : proposition fournisseur → notification immédiate à l'acheteur → écran de
-  diff ancien/nouveau → validation/rejet → mise à jour planning (temps réel, pas de cron).
+  diff ancien/nouveau → validation/rejet → mise à jour planning (temps réel, pas de cron). Un
+  **litige** (dispute) suit un chemin différent, volontairement plus léger : ce n'est pas une
+  proposition avec un ancien/nouveau à arbitrer, donc pas d'entrée `OrderLineHistory` "pending" ni
+  de boutons Valider/Rejeter — l'acheteur est simplement informé (badge "Litige" + motif visibles
+  sur la fiche commande, email dédié) sans qu'aucune décision ne lui soit demandée
+  ([app/fournisseur/(protected)/commandes/[id]/actions.ts](<app/fournisseur/(protected)/commandes/[id]/actions.ts>)).
 - **W3 — Document expirant** : cron quotidien recalcule les statuts (J-15 / J-5 / expiré),
   relance groupée par fournisseur, escalade avec copie acheteur à J-5, blocage de réception si
   expiré (`lib/automations/w3-documents.ts`).

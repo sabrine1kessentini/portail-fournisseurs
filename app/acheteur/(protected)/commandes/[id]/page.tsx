@@ -160,6 +160,11 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                     <Badge variant={line.status === "disputed" ? "destructive" : "secondary"}>
                       {d.lineStatus[line.status]}
                     </Badge>
+                    {line.status === "disputed" && line.reason && (
+                      <p className="mt-1 max-w-xs text-xs text-muted-foreground">
+                        {d.supplierPortal.reason} : {line.reason}
+                      </p>
+                    )}
                   </td>
                   <td className="px-4 py-2.5 text-right">
                     {line.status === "confirmed" && !line.receivedAt && (

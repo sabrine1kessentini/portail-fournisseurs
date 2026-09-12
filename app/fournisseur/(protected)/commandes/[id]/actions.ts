@@ -90,23 +90,15 @@ export async function confirmLineAction(_prev: FormState, formData: FormData): P
       }),
     ]);
   } else if (parsed.data.action === "dispute") {
-    await prisma.$transaction([
-      prisma.orderLine.update({
-        where: { id: line.id },
-        data: { status: "disputed", reason: parsed.data.reason },
-      }),
-      prisma.orderLineHistory.create({
-        data: {
-          orderLineId: line.id,
-          field: "status",
-          oldValue: line.status,
-          newValue: "disputed",
-          reason: parsed.data.reason,
-          changedByType: "supplier",
-          validationStatus: "pending",
-        },
-      }),
-    ]);
+    // Un litige n'est pas une proposition à accepter/rejeter (il n'y a pas
+    // d'ancien/nouveau à arbitrer) : contrairement à propose_date, on
+    // n'ouvre pas d'entrée d'historique "pending" — l'acheteur est informé
+    // (badge "Litige" + motif visible sur la fiche commande, email ci-
+    // dessous) mais aucune décision Valider/Rejeter ne lui est demandée.
+    await prisma.orderLine.update({
+      where: { id: line.id },
+      data: { status: "disputed", reason: parsed.data.reason },
+    });
   }
 
   revalidatePath(`/fournisseur/commandes/${line.orderId}`);
@@ -114,7 +106,7 @@ export async function confirmLineAction(_prev: FormState, formData: FormData): P
   revalidatePath("/acheteur/validations");
   revalidatePath(`/acheteur/commandes/${line.orderId}`);
 
-  if (parsed.data.action === "propose_date" || parsed.data.action === "dispute") {
+  if (parsed.data.action === "propose_date") {
     const isFr = line.order.createdBy.locale === "fr";
     await sendBuyerNotification({
       to: line.order.createdBy.email,
@@ -125,6 +117,19 @@ export async function confirmLineAction(_prev: FormState, formData: FormData): P
       bodyHtml: isFr
         ? `<p><strong>${line.order.supplier.name}</strong> a proposé une modification sur la ligne « ${line.designation} » de la commande <strong>${line.order.reference}</strong>. Merci de valider ou rejeter ce changement.</p>`
         : `<p><strong>${line.order.supplier.name}</strong> proposed a change on line "${line.designation}" of order <strong>${line.order.reference}</strong>. Please approve or reject this change.</p>`,
+    });
+  } else if (parsed.data.action === "dispute") {
+    // Simple information, pas une demande de décision : pas de "valider/rejeter" dans le message.
+    const isFr = line.order.createdBy.locale === "fr";
+    await sendBuyerNotification({
+      to: line.order.createdBy.email,
+      locale: line.order.createdBy.locale,
+      subject: isFr
+        ? `${line.order.reference} — litige signalé (${line.order.supplier.name})`
+        : `${line.order.reference} — dispute reported (${line.order.supplier.name})`,
+      bodyHtml: isFr
+        ? `<p><strong>${line.order.supplier.name}</strong> a signalé un litige sur la ligne « ${line.designation} » de la commande <strong>${line.order.reference}</strong> : « ${parsed.data.reason} ».</p>`
+        : `<p><strong>${line.order.supplier.name}</strong> reported a dispute on line "${line.designation}" of order <strong>${line.order.reference}</strong>: "${parsed.data.reason}".</p>`,
     });
   }
 
