@@ -158,7 +158,9 @@ même fournisseur plus d'une fois toutes les 20h, même si le cron est déclench
 - `MagicLink` (avec `revokedReason` : `manual` | `forwarded`) / `OrderAccessLog` / `SupplierSession`
   — lien fournisseur, journal d'accès (traçage d'un lien transféré), session dérivée révocable.
 - `Document` — facture pro forma / certificat / packing list, statut dérivé de la date
-  d'expiration, chaîne de remplacement (`replacesId`).
+  d'expiration, chaîne de remplacement (`replacesId`). Rattaché à la commande (`orderId`), pas à
+  une ligne précise : un document couvre l'expédition/la commande dans son ensemble, donc le
+  blocage de réception (W3) s'applique à toutes les lignes par construction, pas par simplification.
 - `AlertDigest` — trace des relances groupées envoyées (anti-doublon + audit).
 
 ## 6. Cas limites traités
@@ -180,8 +182,6 @@ même fournisseur plus d'une fois toutes les 20h, même si le cron est déclench
   dépassée sans avoir jamais été marquée reçue compte aussi comme en retard ; une ligne pas encore
   due et pas encore reçue est exclue du calcul (pas encore jugeable) plutôt que comptée par défaut
   contre le score. Documenté dans `lib/scorecard.ts`.
-- **Blocage de réception** : géré au niveau de la commande entière (toutes les lignes), pas
-  document-à-ligne précisément — le sujet ne précise pas quel type de document bloque quelle ligne.
 - **Relance W1** : ne peut pas renvoyer le lien magique d'origine (jamais stocké en clair, par
   design de sécurité) ; elle en génère un nouveau.
 - **Vulnérabilités npm résiduelles** (`npm audit`) : limitées à des dépendances de *build/dev*
