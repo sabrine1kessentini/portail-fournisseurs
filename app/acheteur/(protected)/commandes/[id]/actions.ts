@@ -68,11 +68,6 @@ export async function validateDiffAction(formData: FormData) {
           data: { confirmedQuantity: null, status: "pending" },
         });
       }
-    } else if (history.field === "status" && history.newValue === "disputed") {
-      await prisma.orderLine.update({
-        where: { id: history.orderLine.id },
-        data: { status: parsed.data.decision === "approved" ? "disputed" : "pending" },
-      });
     }
 
     revalidatePath(`/acheteur/commandes/${history.orderLine.orderId}`);
