@@ -54,10 +54,15 @@ export async function createOrderAction(_prev: FormState, formData: FormData): P
   // échec ici (réseau, quota email...) ne doit jamais être présenté comme un
   // échec de création — l'acheteur pourra toujours renvoyer un lien
   // manuellement depuis la page de la commande.
+  // Lien à accès global (orderId: null) plutôt que scopé à cette seule
+  // commande : un fournisseur récurrent doit pouvoir consulter l'ensemble de
+  // ses commandes depuis le même lien, pas recevoir un lien à usage unique
+  // par commande. Un lien scopé à une commande précise reste disponible à
+  // la demande depuis la fiche commande ("Lien fournisseur (cette commande)").
   try {
     const { token } = await createMagicLink({
       supplierId: order.supplierId,
-      orderId: order.id,
+      orderId: null,
       createdById: buyer.buyerId,
     });
     await sendSupplierInvitation({

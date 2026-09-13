@@ -17,7 +17,7 @@
     {
       "step": 2,
       "name": "Lien fournisseur",
-      "description": "Génération automatique d'un magic link scopé à cette commande (token opaque haché, expiration 21 jours), déclenchée immédiatement après la création — aucune action supplémentaire requise de l'acheteur.",
+      "description": "Génération automatique d'un magic link à accès global (toutes les commandes du fournisseur, token opaque haché, expiration 21 jours), déclenchée immédiatement après la création — aucune action supplémentaire requise de l'acheteur. Un lien scopé à une seule commande reste disponible à la demande depuis la fiche commande, pour un accès plus restreint si souhaité.",
       "implemented_in": "app/acheteur/(protected)/commandes/actions.ts:createOrderAction (via lib/auth/supplier.ts:createMagicLink)"
     },
     {
