@@ -5,7 +5,6 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { AlertTriangle, GitCompareArrows, FileWarning } from "lucide-react";
-import { RunAutomationsButton } from "@/components/buyer/run-automations-button";
 import { KpiCard } from "@/components/buyer/kpi-card";
 import { DocumentUrgencyChart } from "@/components/buyer/document-urgency-chart";
 import { ChangeDiffCard } from "@/components/buyer/change-diff-card";
@@ -46,14 +45,11 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
-            {locale === "fr" ? "Centre de pilotage achats" : "Procurement command center"}
-          </p>
-          <h1 className="font-heading text-3xl font-normal tracking-tight">{d.buyerDashboard.title}</h1>
-        </div>
-        <RunAutomationsButton isFr={locale === "fr"} />
+      <div>
+        <p className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
+          {locale === "fr" ? "Centre de pilotage achats" : "Procurement command center"}
+        </p>
+        <h1 className="font-heading text-3xl font-normal tracking-tight">{d.buyerDashboard.title}</h1>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
