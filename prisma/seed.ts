@@ -86,20 +86,20 @@ async function main() {
   });
 
   const atlas = await prisma.supplier.create({
-    data: { name: "Atlas Composants", email: "contact@atlas-composants.demo", locale: "fr" },
+    data: { name: "Atlas Composants", email: "contact@atlas-composants.invalid", locale: "fr" },
   });
   const nordic = await prisma.supplier.create({
-    data: { name: "Nordic Parts AB", email: "orders@nordicparts.demo", locale: "en" },
+    data: { name: "Nordic Parts AB", email: "orders@nordicparts.invalid", locale: "en" },
   });
   const pacific = await prisma.supplier.create({
-    data: { name: "Pacific Trading Co", email: "sales@pacifictrading.demo", locale: "en" },
+    data: { name: "Pacific Trading Co", email: "sales@pacifictrading.invalid", locale: "en" },
   });
   // Quatrième fournisseur : performance en baisse (litiges, retards) pour
   // contraster avec Nordic (fiable) dans le scorecard — utile pour illustrer
   // "une entreprise qui contrôle ses fournisseurs". Héberge aussi les cas
   // limites de lien magique non couverts ailleurs (expiré, révoqué manuel).
   const delta = await prisma.supplier.create({
-    data: { name: "Delta Hydraulique", email: "contact@delta-hydraulique.demo", locale: "fr" },
+    data: { name: "Delta Hydraulique", email: "contact@delta-hydraulique.invalid", locale: "fr" },
   });
 
   // ───────────────────────── PO-2026-001 (Atlas, EUR) ─────────────────────
