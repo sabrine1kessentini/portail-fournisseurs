@@ -134,10 +134,15 @@ export const dictionaries = {
     },
     scorecard: {
       title: "Scorecard fournisseurs",
+      subtitle: "Évalué sur les 90 derniers jours, comparé à la période précédente.",
       onTimeRate: "Ponctualité",
       complianceRate: "Taux de conformité",
       disputes: "Litiges",
       trend: "Tendance",
+      tierAtRisk: "À risque",
+      tierFair: "Moyen",
+      tierGood: "Bon",
+      tierExcellent: "Excellent",
     },
     emails: {
       invitationSubject: "Nouvelle commande {reference} — confirmation requise",
@@ -276,10 +281,15 @@ export const dictionaries = {
     },
     scorecard: {
       title: "Supplier scorecard",
+      subtitle: "Evaluated over the last 90 days, compared to the previous period.",
       onTimeRate: "On-time rate",
       complianceRate: "Compliance rate",
       disputes: "Disputes",
       trend: "Trend",
+      tierAtRisk: "At risk",
+      tierFair: "Fair",
+      tierGood: "Good",
+      tierExcellent: "Excellent",
     },
     emails: {
       invitationSubject: "New order {reference} — confirmation required",

@@ -68,3 +68,13 @@ export function rateTone(rate: number | null): StatusTone {
   if (rate < 0.8) return "warning";
   return "success";
 }
+
+export type ScoreTier = "at_risk" | "fair" | "good" | "excellent";
+
+/** Same thresholds as rateTone, split one level further for the scorecard's headline label ("Bon" vs "Excellent"). */
+export function scoreTier(rate: number | null): ScoreTier {
+  if (rate === null || rate < 0.5) return "at_risk";
+  if (rate < 0.8) return "fair";
+  if (rate < 0.95) return "good";
+  return "excellent";
+}
