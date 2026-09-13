@@ -9,14 +9,17 @@ import { RunAutomationsButton } from "@/components/buyer/run-automations-button"
 import { KpiCard } from "@/components/buyer/kpi-card";
 import { DocumentUrgencyChart } from "@/components/buyer/document-urgency-chart";
 import { ChangeDiffCard } from "@/components/buyer/change-diff-card";
-import { bucketDocumentsByUrgency } from "@/lib/dashboard-metrics";
+import { SupplierWatchlist } from "@/components/buyer/supplier-watchlist";
+import { bucketDocumentsByUrgency, getWatchlistSuppliers } from "@/lib/dashboard-metrics";
 import { lineStatusTone, documentStatusTone } from "@/lib/status-color";
+import { getAllSuppliersScorecards } from "@/lib/scorecard";
+import { initials } from "@/lib/initials";
 
 export default async function DashboardPage() {
   const locale = await resolveLocale();
   const d = getDictionary(locale);
 
-  const [atRiskLines, pendingValidations, expiringDocs] = await Promise.all([
+  const [atRiskLines, pendingValidations, expiringDocs, scorecards] = await Promise.all([
     prisma.orderLine.findMany({
       where: { status: { in: ["date_proposed", "quantity_proposed", "disputed"] } },
       include: { order: { include: { supplier: true } } },
@@ -35,9 +38,11 @@ export default async function DashboardPage() {
       orderBy: { expiresAt: "asc" },
       take: 8,
     }),
+    getAllSuppliersScorecards(),
   ]);
 
   const urgencyBuckets = bucketDocumentsByUrgency(expiringDocs, d.documentStatus);
+  const watchlist = getWatchlistSuppliers(scorecards, 4);
 
   return (
     <div className="space-y-8">
@@ -72,6 +77,13 @@ export default async function DashboardPage() {
         />
       </div>
 
+      {watchlist.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-lg font-medium">{d.buyerDashboard.watchlistTitle}</h2>
+          <SupplierWatchlist suppliers={watchlist} disputesLabel={d.buyerDashboard.disputesCount} />
+        </div>
+      )}
+
       {pendingValidations.length > 0 && (
         <div className="space-y-3">
           <h2 className="text-lg font-medium">{d.buyerDashboard.pendingValidations}</h2>
@@ -105,11 +117,22 @@ export default async function DashboardPage() {
               <Link
                 key={line.id}
                 href={`/acheteur/commandes/${line.orderId}`}
-                className="flex items-center justify-between rounded-md border px-3 py-2 text-sm hover:bg-accent"
+                className="flex items-center justify-between gap-3 rounded-md border px-3 py-2.5 text-sm hover:bg-accent"
               >
-                <div>
-                  <p className="font-medium">{line.order.reference}</p>
-                  <p className="text-muted-foreground">{line.order.supplier.name}</p>
+                <div className="flex min-w-0 items-center gap-3">
+                  <span
+                    className={`flex size-8 shrink-0 items-center justify-center rounded-full font-mono text-[11px] font-medium ${
+                      lineStatusTone(line.status) === "danger"
+                        ? "bg-destructive/10 text-destructive"
+                        : "bg-warning/15 text-warning"
+                    }`}
+                  >
+                    {initials(line.order.supplier.name)}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{line.order.reference}</p>
+                    <p className="truncate text-muted-foreground">{line.order.supplier.name}</p>
+                  </div>
                 </div>
                 <StatusBadge tone={lineStatusTone(line.status)}>{d.lineStatus[line.status]}</StatusBadge>
               </Link>
@@ -129,11 +152,16 @@ export default async function DashboardPage() {
                 <Link
                   key={doc.id}
                   href={`/acheteur/commandes/${doc.orderId}`}
-                  className="flex items-center justify-between rounded-md border px-3 py-2 text-sm hover:bg-accent"
+                  className="flex items-center justify-between gap-3 rounded-md border px-3 py-2.5 text-sm hover:bg-accent"
                 >
-                  <div>
-                    <p className="font-medium">{d.documentType[doc.type]}</p>
-                    <p className="text-muted-foreground">{doc.supplier.name}</p>
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-warning/15 font-mono text-[11px] font-medium text-warning">
+                      {initials(doc.supplier.name)}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">{d.documentType[doc.type]}</p>
+                      <p className="truncate text-muted-foreground">{doc.supplier.name}</p>
+                    </div>
                   </div>
                   <StatusBadge tone={documentStatusTone(doc.status)}>
                     {d.documentStatus[doc.status]}

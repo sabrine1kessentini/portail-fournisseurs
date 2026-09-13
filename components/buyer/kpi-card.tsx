@@ -3,17 +3,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "cn";
 import type { StatusTone } from "@/lib/status-color";
 
-const toneClasses: Record<StatusTone, string> = {
-  success: "bg-success/10 text-success",
-  warning: "bg-warning/15 text-warning",
-  danger: "bg-destructive/10 text-destructive",
-  neutral: "bg-primary/10 text-primary",
+const toneTextClasses: Record<StatusTone, string> = {
+  success: "text-success",
+  warning: "text-warning",
+  danger: "text-destructive",
+  neutral: "text-muted-foreground",
 };
 
 /**
- * Replaces the dashboard's inline SummaryCard: same count semantics, a
- * tinted icon chip instead of always-primary, and the figure rendered in
- * Geist Mono for a deliberate "dashboard data" numeric treatment.
+ * Dashboard KPI tile: label + a large, dominant figure (Geist Mono, "dashboard
+ * data" treatment) with a small tinted icon tucked in the corner as a subtle
+ * category hint rather than the focal point — the number carries the card.
  */
 export function KpiCard({
   icon: Icon,
@@ -29,24 +29,22 @@ export function KpiCard({
   href?: string;
 }) {
   const content = (
-    <CardContent className="flex items-center gap-4 pt-6">
-      <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-full", toneClasses[tone])}>
-        <Icon className="size-5" />
+    <CardContent className="space-y-3 py-1">
+      <div className="flex items-center justify-between">
+        <p className="font-mono text-xs tracking-wide text-muted-foreground uppercase">{label}</p>
+        <Icon className={cn("size-4", toneTextClasses[tone])} />
       </div>
-      <div className="min-w-0">
-        <p className="font-mono text-2xl font-semibold tabular-nums">{value}</p>
-        <p className="truncate text-sm text-muted-foreground">{label}</p>
-      </div>
+      <p className="font-mono text-4xl font-semibold tabular-nums">{value}</p>
     </CardContent>
   );
 
   if (href) {
     return (
-      <Card className="transition-colors hover:bg-accent/50">
+      <Card className="py-5 transition-colors hover:bg-accent/50">
         <Link href={href}>{content}</Link>
       </Card>
     );
   }
 
-  return <Card>{content}</Card>;
+  return <Card className="py-5">{content}</Card>;
 }

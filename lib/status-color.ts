@@ -47,3 +47,11 @@ export function trendTone(value: number | null): StatusTone {
   if (value < 0) return "danger";
   return "neutral";
 }
+
+/** `rate` is a 0..1 proportion (e.g. scorecard onTimeRate). */
+export function rateTone(rate: number | null): StatusTone {
+  if (rate === null) return "neutral";
+  if (rate < 0.5) return "danger";
+  if (rate < 0.8) return "warning";
+  return "success";
+}

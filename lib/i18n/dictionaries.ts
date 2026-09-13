@@ -120,6 +120,9 @@ export const dictionaries = {
       orderTotal: "Total commande",
       historyTitle: "Historique des modifications",
       historyEmpty: "Aucune modification enregistrée pour cette commande.",
+      watchlistTitle: "Fournisseurs à surveiller",
+      watchlistEmpty: "Aucun fournisseur évaluable pour l'instant.",
+      disputesCount: "litige(s)",
     },
     orderHistory: {
       dateLabel: "date",
@@ -259,6 +262,9 @@ export const dictionaries = {
       orderTotal: "Order total",
       historyTitle: "Change history",
       historyEmpty: "No changes recorded for this order.",
+      watchlistTitle: "Suppliers to watch",
+      watchlistEmpty: "No supplier is evaluable yet.",
+      disputesCount: "dispute(s)",
     },
     orderHistory: {
       dateLabel: "date",

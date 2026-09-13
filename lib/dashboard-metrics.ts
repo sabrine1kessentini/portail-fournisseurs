@@ -1,5 +1,6 @@
 import type { DocumentStatus } from "@prisma/client";
 import { documentStatusTone, type StatusTone } from "./status-color";
+import type { SupplierScorecard } from "./scorecard";
 
 export interface UrgencyBucket {
   key: DocumentStatus;
@@ -35,4 +36,19 @@ export function formatCurrency(amount: number, currency: string, locale: string)
     currency,
     minimumFractionDigits: 2,
   }).format(amount);
+}
+
+/**
+ * Picks the suppliers most worth watching from already-computed scorecards:
+ * lowest on-time rate first. Suppliers with no evaluable line yet (rate is
+ * null — nothing to flag) are left out rather than sorted arbitrarily.
+ */
+export function getWatchlistSuppliers(
+  scorecards: SupplierScorecard[],
+  limit: number
+): SupplierScorecard[] {
+  return scorecards
+    .filter((s) => s.onTimeRate !== null)
+    .sort((a, b) => (a.onTimeRate as number) - (b.onTimeRate as number))
+    .slice(0, limit);
 }

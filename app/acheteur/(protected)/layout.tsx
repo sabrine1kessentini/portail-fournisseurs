@@ -9,15 +9,7 @@ import { NotificationBell } from "@/components/buyer/notification-bell";
 import { Button } from "@/components/ui/button";
 import { logoutBuyerAction } from "@/app/actions/session";
 import { LogOut } from "lucide-react";
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-}
+import { initials } from "@/lib/initials";
 
 export default async function BuyerLayout({ children }: { children: React.ReactNode }) {
   const buyer = await requireBuyer();
