@@ -12,7 +12,7 @@ export default async function Home() {
   const isFr = locale === "fr";
 
   return (
-    <main className="min-h-svh bg-background">
+    <main className="flex min-h-svh flex-col bg-background">
       <header className="border-b">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2.5">
@@ -28,7 +28,7 @@ export default async function Home() {
         </div>
       </header>
 
-      <section className="mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+      <section className="mx-auto grid w-full max-w-6xl flex-1 gap-12 px-6 py-20 lg:grid-cols-[1.1fr_1fr] lg:items-center">
         <div>
           <p className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
             {isFr ? "Centre de pilotage achats" : "Procurement command center"}
