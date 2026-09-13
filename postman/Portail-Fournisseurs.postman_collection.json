@@ -1,0 +1,80 @@
+{
+  "info": {
+    "name": "Portail Fournisseurs & Relances — API",
+    "description": "Ce projet est presque entièrement piloté par des Server Actions Next.js (créer une commande, confirmer une ligne, valider un diff...), pas par une API REST : il n'y a donc pas d'endpoints indépendants à appeler pour ces actions. Cette collection couvre les deux seules vraies routes API du projet (app/api/*), à titre de documentation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://portail-fournisseurs.vercel.app" },
+    { "key": "cronSecret", "value": "" },
+    { "key": "documentId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Cron quotidien (W1 relances de lien + W3 documents)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{cronSecret}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/cron/daily",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "cron", "daily"]
+        },
+        "description": "Déclenche les automatisations planifiées (relance de lien non ouvert, recalcul des statuts documentaires, relances/escalades groupées, blocage de réception). Appelé une fois par jour par Vercel Cron (voir vercel.json) ; celui-ci envoie automatiquement l'en-tête Authorization avec CRON_SECRET. Réponse 401 si le secret est absent ou incorrect."
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "originalRequest": { "method": "GET", "url": "{{baseUrl}}/api/cron/daily" },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"ok\": true,\n  \"w1_relance_liens\": { \"candidateLinks\": 0, \"remindersSent\": 0 },\n  \"w3_documents\": { \"documentsScanned\": 10, \"expiredNewly\": 0, \"remindersSent\": 1, \"escalationsSent\": 1 }\n}"
+        },
+        {
+          "name": "401 Non autorisé",
+          "originalRequest": { "method": "GET", "url": "{{baseUrl}}/api/cron/daily" },
+          "status": "Unauthorized",
+          "code": 401,
+          "body": "{ \"error\": \"Non autorisé.\" }"
+        }
+      ]
+    },
+    {
+      "name": "Télécharger un document (URL signée)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/documents/{{documentId}}/download",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "documents", "{{documentId}}", "download"]
+        },
+        "description": "Point d'accès unique aux documents (facture pro forma / certificat / packing list), utilisé par l'espace acheteur et le portail fournisseur. Authentification par cookie de session (acheteur JWT ou session fournisseur dérivée du lien magique) — nécessite donc d'être appelé avec la session déjà active dans le navigateur, pas testable directement depuis Postman sans copier le cookie de session. Ne renvoie jamais l'URL de stockage brute : génère une URL signée Supabase Storage à durée limitée (redirection 302) à chaque appel. Réponses : 404 si le document n'existe pas, 403 si l'appelant (acheteur ou fournisseur) n'a pas les droits sur ce document."
+      },
+      "response": [
+        {
+          "name": "302 Redirect vers l'URL signée",
+          "originalRequest": { "method": "GET", "url": "{{baseUrl}}/api/documents/{{documentId}}/download" },
+          "status": "Found",
+          "code": 302
+        },
+        {
+          "name": "403 Accès refusé",
+          "originalRequest": { "method": "GET", "url": "{{baseUrl}}/api/documents/{{documentId}}/download" },
+          "status": "Forbidden",
+          "code": 403,
+          "body": "{ \"error\": \"Accès refusé.\" }"
+        },
+        {
+          "name": "404 Document introuvable",
+          "originalRequest": { "method": "GET", "url": "{{baseUrl}}/api/documents/{{documentId}}/download" },
+          "status": "Not Found",
+          "code": 404,
+          "body": "{ \"error\": \"Document introuvable.\" }"
+        }
+      ]
+    }
+  ]
+}

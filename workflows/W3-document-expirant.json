@@ -38,6 +38,5 @@
       "description": "Dès qu'un document passe à 'expired', toutes les lignes de la commande concernée sont marquées receptionBlocked=true. Le blocage est levé automatiquement dès qu'un document de remplacement valide (non expiré) est déposé pour cette commande (cas limite 'document de remplacement').",
       "implemented_in": "lib/automations/w3-documents.ts (blocage) ; app/fournisseur/(protected)/commandes/[id]/actions.ts:uploadDocumentAction (déblocage)"
     }
-  ],
-  "limite_documentee": "Le blocage réception est géré au niveau de la commande (toutes les lignes), pas document-à-ligne précisément, faute de règle métier spécifiant quel type de document bloque quelle ligne."
+  ]
 }

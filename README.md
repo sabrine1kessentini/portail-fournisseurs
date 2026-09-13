@@ -93,8 +93,15 @@ prisma/schema.prisma           modèle de données complet (voir §5)
 prisma/seed.ts                 jeu de données de démonstration
 workflows/*.json                export documentaire des 3 workflows (W1/W2/W3)
 demo-data/export.json          export du jeu de données de démo
+postman/*.postman_collection.json  collection des 2 routes API du projet (voir note ci-dessous)
 scripts/smoke-test.ts          test de bout en bout Playwright
 ```
+
+**Note sur l'API** : le projet est piloté quasi entièrement par des Server Actions Next.js
+(créer une commande, confirmer une ligne, valider un diff...), pas par une API REST — ces
+actions n'ont donc pas d'endpoint indépendant à documenter en collection. Seules deux vraies
+routes API existent (`app/api/cron/daily`, `app/api/documents/[id]/download`) ; elles sont
+documentées dans `postman/Portail-Fournisseurs.postman_collection.json`.
 
 ### Sécurité : pourquoi deux niveaux de garde ?
 
