@@ -373,25 +373,119 @@ async function main() {
             designation: "Aluminium extrusion AE-14",
             quantity: 300,
             unitPrice: 5.6,
-            requestedDate: daysFromNow(-10),
+            requestedDate: daysFromNow(-9),
             confirmedQuantity: 300,
             status: "confirmed",
-            receivedAt: daysFromNow(-9),
+            receivedAt: daysFromNow(-10), // reçu 1 jour avant la date demandée
           },
           {
             designation: "Gasket kit GK-2",
             quantity: 150,
             unitPrice: 1.9,
-            requestedDate: daysFromNow(-8),
+            requestedDate: daysFromNow(-7),
             confirmedQuantity: 150,
             status: "confirmed",
-            receivedAt: daysFromNow(-7),
+            receivedAt: daysFromNow(-8), // reçu 1 jour avant la date demandée
           },
         ],
       },
     },
   });
   void order7;
+
+  // ───────────── PO-2026-008 (Atlas, EUR) — livraison récente mixte ────────
+  // Complète le profil Atlas sur la période courante avec des lignes déjà
+  // réceptionnées (une à l'heure, une en retard) : sans ça, ses lignes
+  // courantes (PO-2026-001/002/005) ont toutes une date demandée future et
+  // ne seraient pas encore jugeables.
+  await prisma.order.create({
+    data: {
+      reference: "PO-2026-008",
+      supplierId: atlas.id,
+      currency: "EUR",
+      status: "issued",
+      createdById: buyer.id,
+      lines: {
+        create: [
+          {
+            designation: "Douille de guidage DG-6",
+            quantity: 600,
+            unitPrice: 0.9,
+            requestedDate: daysFromNow(-9),
+            confirmedQuantity: 600,
+            status: "confirmed",
+            receivedAt: daysFromNow(-10),
+          },
+          {
+            designation: "Ressort de compression RC-2",
+            quantity: 1200,
+            unitPrice: 0.4,
+            requestedDate: daysFromNow(-12),
+            confirmedQuantity: 1200,
+            status: "confirmed",
+            receivedAt: daysFromNow(-6), // reçu 6 jours après la date demandée
+          },
+        ],
+      },
+    },
+  });
+
+  // ───────────── PO-2026-009 (Pacific, TND) — livraison récente mixte ─────
+  await prisma.order.create({
+    data: {
+      reference: "PO-2026-009",
+      supplierId: pacific.id,
+      currency: "TND",
+      status: "issued",
+      createdById: buyer.id,
+      lines: {
+        create: [
+          {
+            designation: "Wiring harness WH-30",
+            quantity: 200,
+            unitPrice: 7.2,
+            requestedDate: daysFromNow(-11),
+            confirmedQuantity: 200,
+            status: "confirmed",
+            receivedAt: daysFromNow(-12),
+          },
+          {
+            designation: "Sensor unit SU-4",
+            quantity: 80,
+            unitPrice: 15.5,
+            requestedDate: daysFromNow(-14),
+            confirmedQuantity: 80,
+            status: "confirmed",
+            receivedAt: daysFromNow(-9), // reçu 5 jours après la date demandée
+          },
+        ],
+      },
+    },
+  });
+
+  // ───────────── PO-2026-010 (Delta Hydraulique, EUR) — livraison récente ─
+  await prisma.order.create({
+    data: {
+      reference: "PO-2026-010",
+      supplierId: delta.id,
+      currency: "EUR",
+      status: "issued",
+      createdById: buyer.id,
+      lines: {
+        create: [
+          {
+            designation: "Tuyau hydraulique TH-9",
+            quantity: 100,
+            unitPrice: 12,
+            requestedDate: daysFromNow(-8),
+            confirmedQuantity: 100,
+            status: "confirmed",
+            receivedAt: daysFromNow(-9),
+          },
+        ],
+      },
+    },
+  });
 
   // ───────────────────────── PO-2026-004 (Pacific, TND) ────────────────────
   const order4 = await prisma.order.create({
@@ -577,6 +671,7 @@ async function main() {
             requestedDate: daysFromNow(-140),
             confirmedQuantity: 1000,
             status: "confirmed",
+            receivedAt: daysFromNow(-141),
             createdAt: HISTORY_DATE,
           },
           {
@@ -586,6 +681,7 @@ async function main() {
             requestedDate: daysFromNow(-138),
             confirmedQuantity: 2000,
             status: "confirmed",
+            receivedAt: daysFromNow(-139),
             createdAt: HISTORY_DATE,
           },
           {
@@ -595,6 +691,7 @@ async function main() {
             requestedDate: daysFromNow(-135),
             confirmedQuantity: 500,
             status: "confirmed",
+            receivedAt: daysFromNow(-136),
             createdAt: HISTORY_DATE,
           },
           {
@@ -628,6 +725,7 @@ async function main() {
             requestedDate: daysFromNow(-140),
             confirmedQuantity: 400,
             status: "confirmed",
+            receivedAt: daysFromNow(-141), // à l'heure
             createdAt: HISTORY_DATE,
           },
           {
@@ -635,7 +733,9 @@ async function main() {
             quantity: 200,
             unitPrice: 2.4,
             requestedDate: daysFromNow(-138),
-            status: "pending",
+            confirmedQuantity: 200,
+            status: "confirmed",
+            receivedAt: daysFromNow(-131), // reçu 7 jours en retard
             createdAt: HISTORY_DATE,
           },
           {
@@ -643,7 +743,9 @@ async function main() {
             quantity: 800,
             unitPrice: 0.1,
             requestedDate: daysFromNow(-135),
-            status: "pending",
+            confirmedQuantity: 800,
+            status: "confirmed",
+            receivedAt: daysFromNow(-127), // reçu 8 jours en retard
             createdAt: HISTORY_DATE,
           },
           {
@@ -653,6 +755,7 @@ async function main() {
             requestedDate: daysFromNow(-130),
             confirmedQuantity: 150,
             status: "confirmed",
+            receivedAt: daysFromNow(-131), // à l'heure
             createdAt: HISTORY_DATE,
           },
         ],
@@ -677,6 +780,7 @@ async function main() {
             requestedDate: daysFromNow(-140),
             confirmedQuantity: 100,
             status: "confirmed",
+            receivedAt: daysFromNow(-141), // à l'heure
             createdAt: HISTORY_DATE,
           },
           {
@@ -684,7 +788,9 @@ async function main() {
             quantity: 60,
             unitPrice: 30,
             requestedDate: daysFromNow(-135),
-            status: "pending",
+            confirmedQuantity: 60,
+            status: "confirmed",
+            receivedAt: daysFromNow(-128), // reçu 7 jours en retard
             createdAt: HISTORY_DATE,
           },
         ],

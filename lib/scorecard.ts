@@ -12,12 +12,44 @@ export interface SupplierScorecard {
 
 const PERIOD_DAYS = 90;
 
+type ScorableLine = { status: string; requestedDate: Date; receivedAt: Date | null };
+type Verdict = "onTime" | "late" | "dispute" | "notYetDue";
+
+/**
+ * Détermine si une ligne peut être jugée à date : un litige tranche
+ * immédiatement (à risque, peu importe les dates) ; une ligne réceptionnée
+ * se juge en comparant receivedAt à requestedDate (qui reflète la date
+ * finale convenue : elle est mise à jour en place si un changement de date
+ * a été validé, voir validateDiffAction) ; une ligne jamais réceptionnée
+ * dont la date est dépassée est considérée en retard ; une ligne pas encore
+ * due (requestedDate future, pas encore réceptionnée) n'est pas encore
+ * jugeable — elle est exclue plutôt que comptée par défaut contre le score.
+ */
+function evaluate(line: ScorableLine, now: Date): Verdict {
+  if (line.status === "disputed") return "dispute";
+  if (line.receivedAt) return line.receivedAt <= line.requestedDate ? "onTime" : "late";
+  if (line.requestedDate < now) return "late";
+  return "notYetDue";
+}
+
+function rate(lines: ScorableLine[], now: Date) {
+  const verdicts = lines.map((l) => evaluate(l, now)).filter((v): v is Exclude<Verdict, "notYetDue"> => v !== "notYetDue");
+  if (verdicts.length === 0) return { onTime: null, compliance: null, disputes: 0 };
+  const onTimeCount = verdicts.filter((v) => v === "onTime").length;
+  const disputeCount = verdicts.filter((v) => v === "dispute").length;
+  return {
+    onTime: onTimeCount / verdicts.length,
+    compliance: (verdicts.length - disputeCount) / verdicts.length,
+    disputes: disputeCount,
+  };
+}
+
 /**
  * Calcule le scorecard d'un fournisseur sur les 90 derniers jours et le
  * compare à la période équivalente précédente pour obtenir une tendance.
- * Simplification documentée (README) : faute de module de réception des
- * marchandises, la ponctualité est dérivée du statut final de la ligne
- * (confirmée telle quelle = à l'heure ; date décalée ou litige = à risque).
+ * La ponctualité et la conformité se basent sur les dates réelles
+ * (requestedDate/receivedAt) plutôt que sur le seul statut final — voir
+ * evaluate() ci-dessus.
  */
 export async function getSupplierScorecard(supplierId: string): Promise<SupplierScorecard> {
   const now = new Date();
@@ -33,7 +65,7 @@ export async function getSupplierScorecard(supplierId: string): Promise<Supplier
         status: { not: "cancelled" },
         createdAt: { gte: periodStart },
       },
-      select: { status: true },
+      select: { status: true, requestedDate: true, receivedAt: true },
     }),
     prisma.orderLine.findMany({
       where: {
@@ -41,26 +73,12 @@ export async function getSupplierScorecard(supplierId: string): Promise<Supplier
         status: { not: "cancelled" },
         createdAt: { gte: previousStart, lt: periodStart },
       },
-      select: { status: true },
+      select: { status: true, requestedDate: true, receivedAt: true },
     }),
   ]);
 
-  const rate = (lines: { status: string }[]) => {
-    if (lines.length === 0) return { onTime: null, compliance: null, disputes: 0 };
-    const onTimeCount = lines.filter(
-      (l) => l.status === "confirmed" || l.status === "partially_confirmed"
-    ).length;
-    const disputeCount = lines.filter((l) => l.status === "disputed").length;
-    const compliantCount = lines.length - disputeCount;
-    return {
-      onTime: onTimeCount / lines.length,
-      compliance: compliantCount / lines.length,
-      disputes: disputeCount,
-    };
-  };
-
-  const current = rate(currentLines);
-  const previous = rate(previousLines);
+  const current = rate(currentLines, now);
+  const previous = rate(previousLines, now);
 
   return {
     supplierId,
