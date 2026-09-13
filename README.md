@@ -173,10 +173,13 @@ même fournisseur plus d'une fois toutes les 20h, même si le cron est déclench
 
 ## 7. Limites connues et compromis assumés
 
-- **Ponctualité (scorecard)** : faute d'un module de réception des marchandises dans le périmètre,
-  la ponctualité est dérivée du statut final de la ligne (confirmée telle quelle = à l'heure ; date
-  décalée ou litige = à risque), pas d'une date de livraison réelle. Documenté dans
-  `lib/scorecard.ts`.
+- **Ponctualité (scorecard)** : comparaison réelle de `receivedAt` (date de réception, saisie par
+  l'acheteur via "Marquer reçu") à `requestedDate` — qui reflète la date **finale** convenue,
+  puisqu'elle est mise à jour en place si un changement de date a été validé. Un litige tranche
+  immédiatement (compté comme à risque, quelles que soient les dates) ; une ligne dont la date est
+  dépassée sans avoir jamais été marquée reçue compte aussi comme en retard ; une ligne pas encore
+  due et pas encore reçue est exclue du calcul (pas encore jugeable) plutôt que comptée par défaut
+  contre le score. Documenté dans `lib/scorecard.ts`.
 - **Blocage de réception** : géré au niveau de la commande entière (toutes les lignes), pas
   document-à-ligne précisément — le sujet ne précise pas quel type de document bloque quelle ligne.
 - **Relance W1** : ne peut pas renvoyer le lien magique d'origine (jamais stocké en clair, par

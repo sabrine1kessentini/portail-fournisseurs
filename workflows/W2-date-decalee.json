@@ -1,16 +1,16 @@
 {
   "id": "W2",
   "name": "Date décalée",
-  "description": "Le fournisseur propose une nouvelle date (ou signale un litige) sur une ligne, l'acheteur valide ou rejette, le planning est mis à jour.",
+  "description": "Le fournisseur propose une nouvelle date, ou une quantité réduite, sur une ligne (ou signale un litige) ; l'acheteur valide ou rejette la proposition, le planning est mis à jour. Même mécanisme (historique ancien/nouveau + validation) pour les deux champs.",
   "trigger": {
     "type": "action_utilisateur",
-    "description": "Le fournisseur soumet une proposition de date ou un litige sur une ligne encore 'pending' dans le portail /fournisseur."
+    "description": "Le fournisseur soumet une proposition de date, une quantité réduite, ou un litige sur une ligne encore 'pending' dans le portail /fournisseur."
   },
   "steps": [
     {
       "step": 1,
       "name": "Proposition fournisseur",
-      "description": "Le fournisseur choisit 'Proposer une nouvelle date' ou 'Litige', saisit un motif obligatoire. La ligne passe au statut date_proposed/disputed et un enregistrement d'historique (ancien/nouveau) est créé avec validationStatus=pending.",
+      "description": "Le fournisseur choisit 'Proposer une nouvelle date' (statut date_proposed), accepte avec une quantité réduite (statut quantity_proposed), ou déclare un 'Litige' (statut disputed). Pour les deux premiers cas, un enregistrement d'historique (ancien/nouveau) est créé avec validationStatus=pending, en attente d'arbitrage acheteur. Un litige ne crée volontairement PAS d'entrée d'historique 'pending' : ce n'est pas une proposition avec un ancien/nouveau à arbitrer (voir step 3).",
       "implemented_in": "app/fournisseur/(protected)/commandes/[id]/actions.ts:confirmLineAction"
     },
     {
@@ -22,19 +22,19 @@
     {
       "step": 3,
       "name": "Notification acheteur",
-      "description": "Un email immédiat (non groupé, car événement unique nécessitant une action) informe l'acheteur créateur de la commande qu'une validation est requise.",
+      "description": "Un email immédiat (non groupé, car événement unique) informe l'acheteur créateur de la commande. Pour une date/quantité proposée, le message demande explicitement de valider ou rejeter. Pour un litige, le message est purement informatif (badge + motif visibles sur la fiche commande) : aucune décision valider/rejeter n'est demandée, il n'y a pas d'ancien/nouveau à arbitrer.",
       "implemented_in": "app/fournisseur/(protected)/commandes/[id]/actions.ts (sendBuyerNotification)"
     },
     {
       "step": 4,
       "name": "Validation acheteur",
-      "description": "L'acheteur accepte (la nouvelle date devient la référence, la ligne passe 'confirmée') ou rejette (la ligne repasse 'en attente', le fournisseur doit reproposer).",
+      "description": "L'acheteur accepte (la nouvelle date ou la quantité réduite devient la référence, la ligne passe 'confirmée' ou 'partiellement confirmée') ou rejette (la ligne repasse 'en attente', le fournisseur doit reproposer). Ne s'applique qu'aux propositions de date/quantité — un litige n'a pas d'étape de validation.",
       "implemented_in": "app/acheteur/(protected)/commandes/[id]/actions.ts:validateDiffAction"
     },
     {
       "step": 5,
       "name": "Mise à jour planning",
-      "description": "requestedDate / status de la ligne sont mis à jour ; les pages acheteur et fournisseur sont revalidées immédiatement (revalidatePath).",
+      "description": "requestedDate/confirmedQuantity/status de la ligne sont mis à jour ; les pages acheteur et fournisseur sont revalidées immédiatement (revalidatePath).",
       "implemented_in": "app/acheteur/(protected)/commandes/[id]/actions.ts:validateDiffAction"
     }
   ]

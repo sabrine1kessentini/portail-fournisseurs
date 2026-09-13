@@ -24,7 +24,7 @@
       "step": 3,
       "name": "Relance groupée",
       "description": "Email groupé listant tous les documents concernés pour ce fournisseur, avec lien d'accès au portail. Anti-doublon : pas plus d'une relance du même type par fournisseur toutes les 20h (lib/automations/digest-guard.ts).",
-      "implemented_in": "lib/email.ts:sendGroupedReminder"
+      "implemented_in": "lib/email.ts:sendDocumentDigest"
     },
     {
       "step": 4,
