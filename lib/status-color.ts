@@ -1,4 +1,4 @@
-import type { OrderLineStatus, DocumentStatus } from "@prisma/client";
+import type { OrderLineStatus, OrderStatus, DocumentStatus } from "@prisma/client";
 
 /**
  * Small semantic vocabulary shared by every status/trend visual in the app
@@ -20,6 +20,19 @@ export function lineStatusTone(status: OrderLineStatus): StatusTone {
       return "danger";
     case "pending":
     case "cancelled":
+    default:
+      return "neutral";
+  }
+}
+
+export function orderStatusTone(status: OrderStatus): StatusTone {
+  switch (status) {
+    case "issued":
+      return "success";
+    case "cancelled":
+      return "danger";
+    case "draft":
+    case "closed":
     default:
       return "neutral";
   }

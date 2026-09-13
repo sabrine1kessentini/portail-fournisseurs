@@ -94,7 +94,56 @@ export async function getSupplierScorecard(supplierId: string): Promise<Supplier
   };
 }
 
+/**
+ * Même calcul que getSupplierScorecard, mais pour tous les fournisseurs en
+ * 3 requêtes au total plutôt que ~3 par fournisseur (le dashboard acheteur
+ * appelle cette fonction à chaque chargement : un aller-retour réseau par
+ * fournisseur vers la base y était mesurablement lent).
+ */
 export async function getAllSuppliersScorecards(): Promise<SupplierScorecard[]> {
-  const suppliers = await prisma.supplier.findMany({ select: { id: true } });
-  return Promise.all(suppliers.map((s) => getSupplierScorecard(s.id)));
+  const now = new Date();
+  const periodStart = new Date(now.getTime() - PERIOD_DAYS * 24 * 60 * 60 * 1000);
+  const previousStart = new Date(periodStart.getTime() - PERIOD_DAYS * 24 * 60 * 60 * 1000);
+
+  const suppliers = await prisma.supplier.findMany({ select: { id: true, name: true } });
+  const supplierIds = suppliers.map((s) => s.id);
+
+  const [currentLines, previousLines] = await Promise.all([
+    prisma.orderLine.findMany({
+      where: {
+        order: { supplierId: { in: supplierIds } },
+        status: { not: "cancelled" },
+        createdAt: { gte: periodStart },
+      },
+      select: { status: true, requestedDate: true, receivedAt: true, order: { select: { supplierId: true } } },
+    }),
+    prisma.orderLine.findMany({
+      where: {
+        order: { supplierId: { in: supplierIds } },
+        status: { not: "cancelled" },
+        createdAt: { gte: previousStart, lt: periodStart },
+      },
+      select: { status: true, requestedDate: true, receivedAt: true, order: { select: { supplierId: true } } },
+    }),
+  ]);
+
+  return suppliers.map((supplier) => {
+    const supplierCurrentLines = currentLines.filter((l) => l.order.supplierId === supplier.id);
+    const supplierPreviousLines = previousLines.filter((l) => l.order.supplierId === supplier.id);
+    const current = rate(supplierCurrentLines, now);
+    const previous = rate(supplierPreviousLines, now);
+
+    return {
+      supplierId: supplier.id,
+      supplierName: supplier.name,
+      totalLines: supplierCurrentLines.length,
+      onTimeRate: current.onTime,
+      complianceRate: current.compliance,
+      disputes: current.disputes,
+      onTimeTrend:
+        current.onTime !== null && previous.onTime !== null
+          ? current.onTime - previous.onTime
+          : null,
+    };
+  });
 }
