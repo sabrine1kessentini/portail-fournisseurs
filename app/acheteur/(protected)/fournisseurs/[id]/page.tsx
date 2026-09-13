@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { resolveLocale } from "@/lib/i18n/locale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { GenerateLinkButton } from "@/components/buyer/generate-link-button";
 import { RevokeLinkButton } from "@/components/buyer/revoke-link-button";
@@ -69,10 +69,11 @@ export default async function SupplierDetailPage({ params }: { params: Promise<{
         </Card>
 
         <Card>
-          <CardHeader className="flex items-center justify-between">
+          <CardHeader>
             <CardTitle className="text-base">
-              {isFr ? "Lien fournisseur (accès global)" : "Supplier link (global access)"}
+              {isFr ? "Lien fournisseur" : "Supplier link"}
             </CardTitle>
+            <CardDescription>{d.buyerDashboard.generateLinkHint}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {supplier.magicLinks.map((link) => {

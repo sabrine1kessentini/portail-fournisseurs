@@ -99,6 +99,8 @@ export const dictionaries = {
       expiringDocuments: "Documents à échéance",
       newOrder: "Nouvelle commande",
       generateLink: "Générer un lien fournisseur",
+      generateLinkHint:
+        "Un lien est envoyé automatiquement par email au fournisseur à chaque nouvelle commande. N'utilisez ce bouton qu'en secours, si ce lien a expiré ou a été bloqué.",
       revokeLink: "Révoquer",
       linkCopied: "Lien copié dans le presse-papiers.",
       diffOld: "Ancien",
@@ -236,6 +238,8 @@ export const dictionaries = {
       expiringDocuments: "Expiring documents",
       newOrder: "New order",
       generateLink: "Generate supplier link",
+      generateLinkHint:
+        "A link is sent automatically by email to the supplier with each new order. Only use this button as a fallback, if that link has expired or been blocked.",
       revokeLink: "Revoke",
       linkCopied: "Link copied to clipboard.",
       diffOld: "Old",
