@@ -6,24 +6,14 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GenerateLinkButton } from "@/components/buyer/generate-link-button";
-import { RevokeLinkButton } from "@/components/buyer/revoke-link-button";
 import { CancelOrderButton } from "./cancel-order-button";
 import { ReceiveLineButton } from "./receive-line-button";
 import { ChangeDiffCard } from "@/components/buyer/change-diff-card";
 import { OrderHistoryTimeline } from "@/components/buyer/order-history-timeline";
 import { Download, FileWarning } from "lucide-react";
-import { classifyMagicLinkStatus, countDistinctIps } from "@/lib/access-log";
-import { lineStatusTone, documentStatusTone, type StatusTone } from "@/lib/status-color";
+import { lineStatusTone, documentStatusTone } from "@/lib/status-color";
 import { sumOrderValue, formatCurrency } from "@/lib/dashboard-metrics";
 import { buildOrderHistoryTimeline } from "@/lib/order-history";
-
-const LINK_STATUS_TONE: Record<ReturnType<typeof classifyMagicLinkStatus>, StatusTone> = {
-  active: "success",
-  expired: "neutral",
-  blocked_forwarded: "danger",
-  revoked_manual: "neutral",
-};
 
 function formatDate(d: Date | null, locale: string) {
   return d ? d.toLocaleDateString(locale) : "—";
@@ -44,12 +34,6 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         orderBy: { createdAt: "asc" },
       },
       documents: { orderBy: { uploadedAt: "desc" } },
-      magicLinks: {
-        where: { orderId: id },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-        include: { accesses: true },
-      },
     },
   });
   if (!order) notFound();
@@ -176,100 +160,43 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{d.nav.documents}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {order.documents.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                {isFr ? "Aucun document déposé." : "No documents uploaded."}
-              </p>
-            )}
-            {order.documents.map((doc) => (
-              <div key={doc.id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
-                <div>
-                  <p className="font-medium">{d.documentType[doc.type]}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {doc.expiresAt
-                      ? `${isFr ? "Expire le" : "Expires"} ${formatDate(doc.expiresAt, locale)}`
-                      : doc.fileName}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <StatusBadge tone={documentStatusTone(doc.status)}>
-                    {d.documentStatus[doc.status]}
-                  </StatusBadge>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    nativeButton={false}
-                    render={<a href={`/api/documents/${doc.id}/download`} target="_blank" />}
-                  >
-                    <Download className="size-3.5" />
-                  </Button>
-                </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{d.nav.documents}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {order.documents.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              {isFr ? "Aucun document déposé." : "No documents uploaded."}
+            </p>
+          )}
+          {order.documents.map((doc) => (
+            <div key={doc.id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
+              <div>
+                <p className="font-medium">{d.documentType[doc.type]}</p>
+                <p className="text-xs text-muted-foreground">
+                  {doc.expiresAt
+                    ? `${isFr ? "Expire le" : "Expires"} ${formatDate(doc.expiresAt, locale)}`
+                    : doc.fileName}
+                </p>
               </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              {isFr ? "Lien fournisseur (cette commande)" : "Supplier link (this order)"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {order.magicLinks.map((link) => {
-              const status = classifyMagicLinkStatus(link);
-              const statusLabel = {
-                active: d.buyerDashboard.linkStatusActive,
-                expired: d.buyerDashboard.linkStatusExpired,
-                blocked_forwarded: d.buyerDashboard.linkStatusBlockedForwarded,
-                revoked_manual: d.buyerDashboard.linkStatusRevokedManual,
-              }[status];
-
-              return (
-                <div key={link.id} className="rounded-md border px-3 py-2 text-sm">
-                  <div className="flex items-center justify-between gap-2">
-                    <span>
-                      {isFr ? "Expire le" : "Expires"} {formatDate(link.expiresAt, locale)}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <StatusBadge tone={LINK_STATUS_TONE[status]}>{statusLabel}</StatusBadge>
-                      {status === "active" && (
-                        <RevokeLinkButton
-                          magicLinkId={link.id}
-                          redirectPath={`/acheteur/commandes/${order.id}`}
-                          label={d.buyerDashboard.revokeLink}
-                        />
-                      )}
-                    </div>
-                  </div>
-                  {link.accesses.length > 0 && (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {d.buyerDashboard.accessCount
-                        .replace("{count}", String(link.accesses.length))
-                        .replace(
-                          "{ips}",
-                          String(countDistinctIps(link.accesses.map((a) => a.ip)))
-                        )}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-            <GenerateLinkButton
-              supplierId={order.supplierId}
-              orderId={order.id}
-              label={d.buyerDashboard.generateLink}
-              copiedLabel={d.buyerDashboard.linkCopied}
-            />
-          </CardContent>
-        </Card>
-      </div>
+              <div className="flex items-center gap-2">
+                <StatusBadge tone={documentStatusTone(doc.status)}>
+                  {d.documentStatus[doc.status]}
+                </StatusBadge>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  nativeButton={false}
+                  render={<a href={`/api/documents/${doc.id}/download`} target="_blank" />}
+                >
+                  <Download className="size-3.5" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
     </div>
   );
 }
