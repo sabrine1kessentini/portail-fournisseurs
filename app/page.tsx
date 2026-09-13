@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { ClipboardList, Link2, FileCheck2, LineChart, ArrowRight, AlertTriangle, FileWarning } from "lucide-react";
+import { ArrowRight, AlertTriangle, FileWarning, LineChart } from "lucide-react";
 import { resolveLocale } from "@/lib/i18n/locale";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 
@@ -10,37 +10,6 @@ export default async function Home() {
   const locale = await resolveLocale();
   const d = getDictionary(locale);
   const isFr = locale === "fr";
-
-  const features = [
-    {
-      icon: ClipboardList,
-      title: isFr ? "Commandes" : "Orders",
-      desc: isFr
-        ? "Lignes, quantités, prix, dates, confirmations partielles et historique des modifications."
-        : "Lines, quantities, prices, dates, partial confirmations and change history.",
-    },
-    {
-      icon: Link2,
-      title: isFr ? "Portail externe" : "External portal",
-      desc: isFr
-        ? "Lien sécurisé expirable, actions limitées et interface bilingue FR/EN."
-        : "Expirable secure link, limited actions and bilingual FR/EN interface.",
-    },
-    {
-      icon: FileCheck2,
-      title: isFr ? "Documents" : "Documents",
-      desc: isFr
-        ? "Facture pro forma, certificat, packing list avec statut et expiration."
-        : "Proforma invoice, certificate, packing list with status and expiry.",
-    },
-    {
-      icon: LineChart,
-      title: isFr ? "Scorecard" : "Scorecard",
-      desc: isFr
-        ? "Ponctualité, taux de conformité, litiges et tendance par période."
-        : "On-time rate, compliance rate, disputes and trend over time.",
-    },
-  ];
 
   return (
     <main className="min-h-svh bg-background">
@@ -95,26 +64,6 @@ export default async function Home() {
         </div>
 
         <ProductPreview isFr={isFr} />
-      </section>
-
-      <section className="mx-auto max-w-6xl px-6 pb-24">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {features.map((f, i) => (
-            <Card key={f.title} className="text-left">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <f.icon className="size-6 text-primary" strokeWidth={1.75} />
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                </div>
-                <CardTitle className="mt-3">{f.title}</CardTitle>
-                <CardDescription>{f.desc}</CardDescription>
-              </CardHeader>
-              <CardContent />
-            </Card>
-          ))}
-        </div>
       </section>
 
       <footer className="border-t py-8">
